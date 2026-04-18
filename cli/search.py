@@ -44,19 +44,31 @@ def _bm25_search(conn, query: str, top_k: int) -> list[tuple[str, int]]:
     return [(r["id"], i + 1) for i, r in enumerate(rows)]
 
 
+def _encode_query(query: str, model_name: str) -> list[float]:
+    """Encode a query string using fastembed (primary) or sentence-transformers."""
+    from cli.embed import FASTEMBED_MODELS, ST_MODELS
+    try:
+        from fastembed import TextEmbedding
+        hf_name = FASTEMBED_MODELS.get(model_name, model_name)
+        model = TextEmbedding(model_name=hf_name)
+        return list(next(model.embed([query])))
+    except ImportError:
+        pass
+    try:
+        from sentence_transformers import SentenceTransformer
+        hf_name = ST_MODELS.get(model_name, model_name)
+        model = SentenceTransformer(hf_name)
+        return model.encode([query], normalize_embeddings=True)[0].tolist()
+    except ImportError:
+        raise RuntimeError("No embedding backend available. Run: pip install fastembed")
+
+
 def _vector_search(conn, query: str, top_k: int, model_name: str) -> list[tuple[str, int]]:
     """Semantic search via sqlite-vec. Returns [(chunk_id, rank)]."""
     try:
         import sqlite_vec
-        from sentence_transformers import SentenceTransformer
 
-        model_key = {
-            "all-MiniLM-L6-v2": "sentence-transformers/all-MiniLM-L6-v2",
-            "nomic-embed-text": "nomic-ai/nomic-embed-text-v1",
-        }.get(model_name, model_name)
-
-        model = SentenceTransformer(model_key)
-        vec = model.encode([query], normalize_embeddings=True)[0].tolist()
+        vec = _encode_query(query, model_name)
         packed = struct.pack(f"{len(vec)}f", *vec)
         dim = len(vec)
 

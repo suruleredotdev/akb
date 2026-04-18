@@ -57,13 +57,15 @@ def embed(
     block_id: str = typer.Option(None, "--block-id", "-b"),
     all_blocks: bool = typer.Option(False, "--all"),
     model: str = typer.Option("all-MiniLM-L6-v2", "--model", "-m",
-                               help="Embedding model: all-MiniLM-L6-v2 | nomic-embed-text"),
+                               help="Model: all-MiniLM-L6-v2 | bge-small-en | nomic-embed-text"),
+    backend: str = typer.Option("fastembed", "--backend",
+                                 help="fastembed (default, no torch) | sentence-transformers"),
     batch_size: int = typer.Option(32, "--batch-size"),
     force: bool = typer.Option(False, "--force"),
 ):
-    """Generate vector embeddings for chunks."""
+    """Generate vector embeddings for chunks. Uses fastembed (ONNX) by default — no torch needed."""
     from cli.embed import embed_command
-    embed_command(block_id, all_blocks, model, batch_size, force)
+    embed_command(block_id, all_blocks, model, backend, batch_size, force)
 
 
 # ── ner ───────────────────────────────────────────────────────────────────────

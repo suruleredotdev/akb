@@ -1,4 +1,9 @@
-"""akb embed — generate vector embeddings for chunks."""
+"""akb embed — generate vector embeddings for chunks.
+
+Uses fastembed (ONNX-based, no torch) by default — works on all platforms
+including Intel Mac. Pass --backend sentence-transformers to use torch-based
+embeddings if you have a GPU setup.
+"""
 
 import struct
 import sys
@@ -10,28 +15,64 @@ from cli.db import get_conn, insert_run, list_blocks, update_chunk_embedding
 
 console = Console()
 
-SUPPORTED_MODELS = {
+# fastembed model names (ONNX, no torch required)
+FASTEMBED_MODELS = {
     "all-MiniLM-L6-v2": "sentence-transformers/all-MiniLM-L6-v2",
-    "nomic-embed-text": "nomic-ai/nomic-embed-text-v1",
+    "bge-small-en":      "BAAI/bge-small-en-v1.5",
+    "bge-base-en":       "BAAI/bge-base-en-v1.5",
+    "nomic-embed-text":  "nomic-ai/nomic-embed-text-v1.5",
 }
 
+# sentence-transformers HF names (requires torch)
+ST_MODELS = {
+    "all-MiniLM-L6-v2": "sentence-transformers/all-MiniLM-L6-v2",
+    "nomic-embed-text":  "nomic-ai/nomic-embed-text-v1",
+}
 
-def _load_model(model_name: str):
-    from sentence_transformers import SentenceTransformer
-    model_key = SUPPORTED_MODELS.get(model_name, model_name)
-    console.print(f"Loading embedding model: [cyan]{model_key}[/cyan]")
-    kwargs = {}
-    if model_name == "nomic-embed-text":
-        kwargs["trust_remote_code"] = True
-    return SentenceTransformer(model_key, **kwargs)
+DEFAULT_MODEL = "all-MiniLM-L6-v2"
+
+
+def _load_fastembed(model_name: str):
+    try:
+        from fastembed import TextEmbedding
+    except ImportError:
+        console.print("[red]fastembed not installed. Run: pip install fastembed[/red]")
+        sys.exit(1)
+    hf_name = FASTEMBED_MODELS.get(model_name, model_name)
+    console.print(f"Loading fastembed model: [cyan]{hf_name}[/cyan]")
+    return TextEmbedding(model_name=hf_name)
+
+
+def _load_sentence_transformers(model_name: str):
+    try:
+        from sentence_transformers import SentenceTransformer
+    except ImportError:
+        console.print(
+            "[red]sentence-transformers not installed. "
+            "Run: pip install sentence-transformers[/red]\n"
+            "[yellow]Or omit --backend to use the default fastembed backend.[/yellow]"
+        )
+        sys.exit(1)
+    hf_name = ST_MODELS.get(model_name, model_name)
+    console.print(f"Loading sentence-transformers model: [cyan]{hf_name}[/cyan]")
+    kwargs = {"trust_remote_code": True} if "nomic" in model_name else {}
+    return SentenceTransformer(hf_name, **kwargs)
 
 
 def _pack(vec: list[float]) -> bytes:
     return struct.pack(f"{len(vec)}f", *vec)
 
 
+def _embed_batch_fastembed(model, texts: list[str]) -> list[list[float]]:
+    return [list(v) for v in model.embed(texts)]
+
+
+def _embed_batch_st(model, texts: list[str]) -> list[list[float]]:
+    return model.encode(texts, show_progress_bar=False, normalize_embeddings=True).tolist()
+
+
 def embed_command(block_id: str | None, all_blocks: bool, model_name: str,
-                  batch_size: int, force: bool) -> None:
+                  backend: str, batch_size: int, force: bool) -> None:
     with get_conn() as conn:
         if all_blocks:
             blocks = list_blocks(conn)
@@ -45,8 +86,7 @@ def embed_command(block_id: str | None, all_blocks: bool, model_name: str,
             console.print("[red]Provide --block-id or --all[/red]")
             sys.exit(1)
 
-        # Collect chunks needing embeddings
-        target_chunks: list[tuple[str, str]] = []  # (chunk_id, text)
+        target_chunks: list[tuple[str, str]] = []
         for block in blocks:
             q = "SELECT id, text FROM chunks WHERE block_id=?"
             if not force:
@@ -58,16 +98,27 @@ def embed_command(block_id: str | None, all_blocks: bool, model_name: str,
             console.print("[yellow]No chunks need embedding. Use --force to re-embed.[/yellow]")
             return
 
-        console.print(f"Embedding {len(target_chunks)} chunks with [cyan]{model_name}[/cyan]")
-        model = _load_model(model_name)
-        run_id = insert_run(conn, "embed", model_name, {"batch_size": batch_size})
+        console.print(
+            f"Embedding {len(target_chunks)} chunks "
+            f"[cyan]{model_name}[/cyan] via [cyan]{backend}[/cyan]"
+        )
+
+        if backend == "fastembed":
+            model = _load_fastembed(model_name)
+            embed_fn = lambda texts: _embed_batch_fastembed(model, texts)
+        else:
+            model = _load_sentence_transformers(model_name)
+            embed_fn = lambda texts: _embed_batch_st(model, texts)
+
+        run_id = insert_run(conn, "embed", model_name,
+                            {"backend": backend, "batch_size": batch_size})
 
         for i in track(range(0, len(target_chunks), batch_size),
                        description="Embedding..."):
             batch = target_chunks[i:i + batch_size]
             texts = [t for _, t in batch]
-            vecs = model.encode(texts, show_progress_bar=False, normalize_embeddings=True)
+            vecs = embed_fn(texts)
             for (chunk_id, _), vec in zip(batch, vecs):
-                update_chunk_embedding(conn, chunk_id, _pack(vec.tolist()), run_id)
+                update_chunk_embedding(conn, chunk_id, _pack(vec), run_id)
 
     console.print(f"[green]Done.[/green] {len(target_chunks)} embeddings written.")

@@ -15,7 +15,7 @@ dependencies = [
     "markdownify>=0.12",
     "pymupdf4llm>=0.0.5",
     "spacy>=3.7",
-    "sentence-transformers>=2.7",
+    "fastembed>=0.3",
     "sqlite-vec>=0.1.6",
     "fastapi>=0.111",
     "uvicorn>=0.29",
@@ -30,9 +30,9 @@ akb = "cli.main:app"
 
 [project.optional-dependencies]
 llm = ["anthropic>=0.28", "ollama>=0.2"]
+# Optional: GPU-accelerated embeddings via sentence-transformers + torch
+gpu = ["sentence-transformers>=2.7"]
 dev = ["pytest>=8", "ruff>=0.4"]
-# Intel Mac (x86_64): torch dropped native wheels; install CPU build explicitly
-cpu = ["torch>=2.0; sys_platform=='darwin' and platform_machine=='x86_64'"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["cli", "mcp"]
@@ -40,14 +40,3 @@ packages = ["cli", "mcp"]
 [tool.ruff]
 line-length = 100
 
-# ── uv: route torch to CPU-only index on Intel Mac ───────────────────────────
-# uv automatically picks this up; no manual --index-url needed.
-[tool.uv.sources]
-torch = [
-    { index = "pytorch-cpu", marker = "sys_platform == 'darwin' and platform_machine == 'x86_64'" },
-]
-
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
-explicit = true
