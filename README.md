@@ -14,6 +14,11 @@ pip install -e ".[llm]"
 python -m spacy download en_core_web_sm
 ```
 
+> **macOS 26 (Tahoe) + Intel Mac**: uv doesn't yet map `macosx_26_0_x86_64` to
+> `macosx_11_0_x86_64` wheels. Use `pip` instead of `uv pip`, or prefix uv
+> commands with `MACOSX_DEPLOYMENT_TARGET=11.0`. This is a uv bug; `pip` works
+> without any workaround.
+
 ## Quickstart
 
 ```bash
