@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>akb — Archive Knowledge Base</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <nav id="sidebar">
+      <h1>akb</h1>
+      <p class="subtitle">Archive Knowledge Base</p>
+      <div id="search-box">
+        <input type="text" id="query-input" placeholder="Search the archive…" />
+        <button id="search-btn">Search</button>
+        <label><input type="checkbox" id="llm-toggle" /> LLM synthesis</label>
+      </div>
+      <div id="view-tabs">
+        <button class="tab active" data-view="search">Results</button>
+        <button class="tab" data-view="geo">Map</button>
+        <button class="tab" data-view="chrono">Timeline</button>
+        <button class="tab" data-view="entities">Entities</button>
+      </div>
+      <div id="block-list"></div>
+    </nav>
+
+    <main id="content">
+      <div id="view-search" class="view active">
+        <div id="llm-answer" class="hidden"></div>
+        <div id="results-list"></div>
+      </div>
+      <div id="view-geo" class="view">
+        <div id="map"></div>
+        <div id="geo-export-bar">
+          <button onclick="exportGeo('geojson')">Export GeoJSON</button>
+          <button onclick="exportGeo('kml')">Export KML</button>
+        </div>
+      </div>
+      <div id="view-chrono" class="view">
+        <div id="timeline-container"></div>
+        <div id="geo-export-bar">
+          <button onclick="exportChrono('timex-json')">Export TIMEX JSON</button>
+          <button onclick="exportChrono('timex3-xml')">Export TIMEX3 XML</button>
+        </div>
+      </div>
+      <div id="view-entities" class="view">
+        <div id="entity-controls">
+          <select id="entity-type-filter">
+            <option value="">All types</option>
+            <option value="LOC">LOC</option>
+            <option value="TIME">TIME</option>
+            <option value="PERSON">PERSON</option>
+            <option value="ORG">ORG</option>
+            <option value="KEYWORD">KEYWORD</option>
+          </select>
+          <input type="text" id="entity-search" placeholder="Filter entities…" />
+        </div>
+        <svg id="entity-graph"></svg>
+        <div id="entity-table"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

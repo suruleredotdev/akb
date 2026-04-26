@@ -1,0 +1,8 @@
+data/blocks/
+data/archive.db
+__pycache__/
+*.pyc
+.venv/
+dist/
+*.egg-info/
+.DS_Store
