@@ -4,6 +4,8 @@ Local-first CLI for multi-dimensional document analysis: semantic search, geogra
 extraction, temporal annotation, and NER — all stored in SQLite, exportable to GeoJSON,
 KML, and TIMEX formats.
 
+<img width="600" height="353" alt="Screenshot 2026-04-15 at 10 39 40 PM" src="https://github.com/user-attachments/assets/6e14ed9d-beda-4d68-ac6b-f33c4fa6366c" />
+
 ## Install
 
 ```bash
