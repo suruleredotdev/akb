@@ -217,5 +217,81 @@ def status():
             console.print(f"  {r['run_type']} · {r['model'] or 'n/a'} · {r['created_at'][:19]}")
 
 
+# ── geoagent ─────────────────────────────────────────────────────────────────
+
+@app.command()
+def geoagent(
+    prompt: str = typer.Argument(None, help="Prompt to run immediately (optional)"),
+    model:  str = typer.Option("claude-sonnet-4-6", "--model", "-m"),
+    tool:   str = typer.Option(None, "--tool", "-t",
+                               help="Call a single tool directly: search-locations | "
+                                    "timeline-locations | entity-network | export-geojson"),
+    query:  str = typer.Option(None, "--query", "-q", help="Query/place name for --tool"),
+    start:  str = typer.Option("", "--start", help="ISO start date for timeline-locations"),
+    end:    str = typer.Option("", "--end",   help="ISO end date for timeline-locations"),
+    out:    str = typer.Option(None, "--out", "-o", help="Write GeoJSON output to file"),
+):
+    """GeoAgent integration — run akb tools in a GeoAgent session or call directly.
+
+    Examples:
+
+      # Interactive agent session (needs geoagent + leafmap installed)
+      akb geoagent "Show water harvesting sites in West Africa before 1500 CE"
+
+      # Call a single tool directly (no GeoAgent install required)
+      akb geoagent --tool search-locations --query "Lake Chad climate"
+      akb geoagent --tool timeline-locations --start 0900 --end 1500 --out medieval.geojson
+      akb geoagent --tool entity-network --query "Maiduguri"
+      akb geoagent --tool export-geojson --out full_corpus.geojson
+    """
+    import json as _json
+    from cli.geoagent_tools import (
+        akb_search_locations, akb_get_timeline_locations,
+        akb_get_entity_network, akb_export_geojson,
+    )
+
+    if tool:
+        result = None
+        if tool == "search-locations":
+            if not query:
+                console.print("[red]--query required for search-locations[/red]"); raise typer.Exit(1)
+            result = akb_search_locations(query)
+        elif tool == "timeline-locations":
+            result = akb_get_timeline_locations(iso_start=start, iso_end=end)
+        elif tool == "entity-network":
+            if not query:
+                console.print("[red]--query required for entity-network[/red]"); raise typer.Exit(1)
+            result = akb_get_entity_network(query)
+        elif tool == "export-geojson":
+            result = akb_export_geojson(block_title_filter=query or "")
+        else:
+            console.print(f"[red]Unknown tool: {tool!r}[/red]"); raise typer.Exit(1)
+
+        output = _json.dumps(result, indent=2)
+        if out:
+            from pathlib import Path
+            Path(out).write_text(output)
+            n = len(result.get("features", result.get("occurrences", [])))
+            console.print(f"[green]Wrote {n} features →[/green] {out}")
+        else:
+            print(output)
+        return
+
+    if not prompt:
+        console.print("[yellow]Provide a prompt or use --tool for direct invocation.[/yellow]")
+        console.print("  akb geoagent --help")
+        raise typer.Exit()
+
+    try:
+        from cli.geoagent_tools import make_agent
+    except ImportError:
+        console.print("[red]geoagent not installed.[/red] Run: pip install 'akb[geoagent]'")
+        raise typer.Exit(1)
+
+    console.print(f"Starting GeoAgent ([cyan]{model}[/cyan])…")
+    agent = make_agent(model=model)
+    agent.run(prompt)
+
+
 if __name__ == "__main__":
     app()

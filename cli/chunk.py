@@ -112,15 +112,18 @@ def chunk_block(conn, block_id: str, strategy: str, chunk_size: int,
                         {"strategy": strategy, "chunk_size": chunk_size, "overlap": overlap})
 
     ids = [new_id() for _ in texts]
-    # Insert all chunks with next_chunk_id=None first (FK: referenced chunks don't exist yet)
+
+    # Insert without prev/next first (next_chunk_id doesn't exist yet)
     for i, (chunk_id, chunk_text) in enumerate(zip(ids, texts)):
-        prev_id = ids[i - 1] if i > 0 else None
-        insert_chunk(conn, chunk_id, block_id, run_id, i, chunk_text, prev_id, None)
-    # Back-fill next_chunk_id now that all chunks exist
-    for i, chunk_id in enumerate(ids[:-1]):
+        insert_chunk(conn, chunk_id, block_id, run_id, i, chunk_text, None, None)
+
+    # Second pass: wire up the linked list now all rows exist
+    for i, chunk_id in enumerate(ids):
         conn.execute(
-            "UPDATE chunks SET next_chunk_id=? WHERE id=?",
-            (ids[i + 1], chunk_id),
+            "UPDATE chunks SET prev_chunk_id=?, next_chunk_id=? WHERE id=?",
+            (ids[i - 1] if i > 0 else None,
+             ids[i + 1] if i < len(ids) - 1 else None,
+             chunk_id),
         )
 
     return len(texts)

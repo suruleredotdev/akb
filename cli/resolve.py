@@ -14,68 +14,126 @@ console = Console()
 
 # ── Geo resolution ─────────────────────────────────────────────────────────────
 
+# Static coordinate table for common place names — used when offline geocoder
+# and Nominatim are both unavailable (e.g. no network, no GeoNames data).
+_STATIC_COORDS: dict[str, tuple[float, float, str]] = {
+    # (lat, lon, normalized_name)
+    "lake chad":             (13.50,  14.00, "Lake Chad"),
+    "nigeria":               ( 9.08,   8.67, "Nigeria"),
+    "niger":                 (17.61,   8.08, "Niger"),
+    "chad":                  (15.45,  18.73, "Chad"),
+    "cameroon":              ( 5.69,  12.35, "Cameroon"),
+    "borno state":           (12.00,  13.16, "Borno State, Nigeria"),
+    "borno":                 (12.00,  13.16, "Borno State, Nigeria"),
+    "yobe state":            (12.29,  11.44, "Yobe State, Nigeria"),
+    "yobe":                  (12.29,  11.44, "Yobe State, Nigeria"),
+    "adamawa":               ( 9.33,  12.40, "Adamawa State, Nigeria"),
+    "maiduguri":             (11.85,  13.16, "Maiduguri, Borno, Nigeria"),
+    "damaturu":              (11.75,  11.96, "Damaturu, Yobe, Nigeria"),
+    "gwoza":                 (10.88,  13.69, "Gwoza, Borno, Nigeria"),
+    "kano":                  (12.00,   8.52, "Kano, Nigeria"),
+    "kano state":            (12.00,   8.52, "Kano State, Nigeria"),
+    "katsina":               (12.99,   7.60, "Katsina, Nigeria"),
+    "jigawa":                (12.22,   9.35, "Jigawa State, Nigeria"),
+    "lagos":                 ( 6.52,   3.38, "Lagos, Nigeria"),
+    "abuja":                 ( 9.07,   7.40, "Abuja, Nigeria"),
+    "sokoto":                (13.06,   5.24, "Sokoto, Nigeria"),
+    "diffa":                 (13.31,  12.61, "Diffa, Niger"),
+    "niamey":                (13.51,   2.12, "Niamey, Niger"),
+    "tahoua":                (14.89,   5.26, "Tahoua, Niger"),
+    "maradi":                (13.50,   7.10, "Maradi, Niger"),
+    "n'djamena":             (12.10,  15.04, "N'Djamena, Chad"),
+    "ndjamena":              (12.10,  15.04, "N'Djamena, Chad"),
+    "kukawa":                (12.92,  13.54, "Kukawa, Borno, Nigeria"),
+    "ngazargamu":            (13.11,  13.93, "Ngazargamu (historical), Nigeria/Niger"),
+    "burkina faso":          (12.36,  -1.53, "Burkina Faso"),
+    "yatenga":               (13.78,  -2.21, "Yatenga Province, Burkina Faso"),
+    "mali":                  (17.57,  -3.99, "Mali"),
+    "timbuktu":              (16.77,  -3.00, "Timbuktu, Mali"),
+    "senegal":               (14.50, -14.45, "Senegal"),
+    "ghana":                 ( 7.95,  -1.02, "Ghana"),
+    "kenya":                 ( 0.02,  37.91, "Kenya"),
+    "nairobi":               (-1.29,  36.82, "Nairobi, Kenya"),
+    "mombasa":               (-4.05,  39.67, "Mombasa, Kenya"),
+    "kilifi":                (-3.63,  39.85, "Kilifi, Kenya"),
+    "africa":                ( 8.78,  34.51, "Africa"),
+    "west africa":           ( 9.52,  -2.55, "West Africa"),
+    "the sahel":             (14.50,  17.00, "Sahel"),
+    "sahel":                 (14.50,  17.00, "Sahel"),
+    "central african republic": ( 6.61,  20.94, "Central African Republic"),
+    "congo river":           (-0.73,  17.54, "Congo River"),
+    "arabian peninsula":     (23.89,  45.08, "Arabian Peninsula"),
+    "egypt":                 (26.82,  30.80, "Egypt"),
+    "oxford":                (51.75,  -1.26, "Oxford, UK"),
+    "yorubaland":            ( 7.87,   3.93, "Yorubaland, Nigeria"),
+    "hausaland":             (12.00,   8.52, "Hausaland, Nigeria"),
+}
+
+
+def _static_geocode(place_name: str, hints: list[str]) -> dict | None:
+    """Look up coordinates from static table with fuzzy key matching."""
+    key = place_name.lower().strip().rstrip("'s").strip()
+    # Direct hit
+    if key in _STATIC_COORDS:
+        lat, lon, norm = _STATIC_COORDS[key]
+        return {"lat": lat, "lon": lon, "normalized": norm, "confidence": 0.75}
+    # Substring match — prefer longer matches
+    matches = [(k, v) for k, v in _STATIC_COORDS.items() if k in key or key in k]
+    if matches:
+        best = max(matches, key=lambda x: len(x[0]))
+        lat, lon, norm = best[1]
+        return {"lat": lat, "lon": lon, "normalized": norm, "confidence": 0.6}
+    return None
+
+
 def _load_geocoder():
-    """Load the offline geocoder from libs/."""
+    """Load the offline geocoder from libs/, or return None."""
     libs_path = Path(__file__).parent.parent.parent / "libs"
     sys.path.insert(0, str(libs_path))
     try:
         from offline_geocoder.geocoder import OfflineGeocoder
-        assets = Path(__file__).parent.parent.parent / "src" / "python" / "assets"
-        return OfflineGeocoder(
-            cities_path=str(assets / "cities500.txt"),
-            countries_path=str(assets / "countryInfo.txt"),
-            regions_path=str(assets / "admin1CodesASCII.txt"),
-        )
+        return OfflineGeocoder()
     except ImportError:
-        try:
-            from geopy.geocoders import Nominatim
-            console.print("[yellow]offline_geocoder not available, falling back to Nominatim[/yellow]")
-            return Nominatim(user_agent="akb/0.1")
-        except Exception as e:
-            console.print(f"[red]No geocoder available: {e}[/red]")
-            return None
+        return None  # Fall through to static table
 
 
 def _build_context_hints(neighbor_chunks, conn) -> list[str]:
-    """Extract place names from neighboring chunks as disambiguation hints."""
     hints = []
     for nc in neighbor_chunks:
-        spans = get_spans_for_chunk(conn, nc["id"])
-        for s in spans:
-            if s["span_type"] == "LOC" and s["normalized_value"]:
-                hints.append(s["normalized_value"])
-            elif s["span_type"] == "LOC" and s["raw_text"]:
-                hints.append(s["raw_text"])
+        for s in get_spans_for_chunk(conn, nc["id"]):
+            if s["span_type"] == "LOC":
+                hints.append(s["normalized_value"] or s["raw_text"])
     return hints
 
 
 def _geocode_with_fallback(geocoder, place_name: str, hints: list[str]) -> dict | None:
-    """Try geocoding with context hints, then fall back to bare name."""
-    if geocoder is None:
-        return None
+    # 1. Offline geocoder (libs/offline_geocoder)
+    if geocoder is not None:
+        try:
+            result = geocoder.geocode(place_name, hints=hints)
+            if result and hasattr(result, "latitude"):
+                return {"lat": result.latitude, "lon": result.longitude,
+                        "normalized": result.address or place_name, "confidence": 0.85}
+            elif isinstance(result, dict):
+                return {"lat": result.get("lat"), "lon": result.get("lon"),
+                        "normalized": result.get("name", place_name), "confidence": 0.85}
+        except Exception:
+            pass
+
+    # 2. Nominatim (needs network)
     try:
-        # OfflineGeocoder uses .lookup() with optional GeocodeHints
-        if hasattr(geocoder, "lookup"):
-            try:
-                from offline_geocoder.models import GeocodeHints
-                hint_obj = GeocodeHints(context_text=" ".join(hints)) if hints else None
-            except ImportError:
-                hint_obj = None
-            result = geocoder.lookup(place_name, hints=hint_obj)
-            if result and isinstance(result, dict):
-                name = (result.get("match") or {}).get("name", place_name)
-                return {"lat": result.get("latitude"), "lon": result.get("longitude"),
-                        "normalized": name, "confidence": 0.8}
-        # Nominatim fallback (geopy)
-        elif hasattr(geocoder, "geocode"):
-            query = f"{place_name}, {hints[0]}" if hints else place_name
-            loc = geocoder.geocode(query, timeout=5)
-            if loc:
-                return {"lat": loc.latitude, "lon": loc.longitude,
-                        "normalized": loc.address, "confidence": 0.6}
-    except Exception as e:
-        console.print(f"  [dim]Geocoding failed for {place_name!r}: {e}[/dim]")
-    return None
+        from geopy.geocoders import Nominatim
+        nom = Nominatim(user_agent="akb/0.1")
+        query = f"{place_name}, {hints[0]}" if hints else place_name
+        loc = nom.geocode(query, timeout=5)
+        if loc:
+            return {"lat": loc.latitude, "lon": loc.longitude,
+                    "normalized": loc.address, "confidence": 0.7}
+    except Exception:
+        pass
+
+    # 3. Static table fallback
+    return _static_geocode(place_name, hints)
 
 
 def resolve_geo(conn, block_id: str, context_window: int, min_confidence: float,
