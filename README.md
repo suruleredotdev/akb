@@ -46,6 +46,83 @@ akb export entities --all --type LOC --format csv --out locations.csv
 akb serve
 ```
 
+## GeoAgent integration
+
+akb exposes its corpus as [GeoAgent](https://github.com/opengeoagent/geoagent) tools,
+letting you query the knowledge base in natural language and render results on a live
+Leaflet map — with optional overlay of STAC / NASA OPERA satellite data.
+
+### Install
+
+```bash
+pip install -e ".[llm,geoagent]"
+```
+
+### Interactive demo (Jupyter)
+
+Open `notebooks/geoagent_demo.ipynb`. Run the quickstart pipeline first if you haven't
+already (see notebook header), then work through three sections:
+
+**Section 1 — Direct tool calls** (no GeoAgent install required)  
+Call the four akb tools directly and load results into leafmap:
+
+```python
+from cli.geoagent_tools import akb_search_locations, akb_get_timeline_locations
+
+geojson = akb_search_locations("water harvesting flood mitigation", top_k=12)
+m = leafmap.Map(center=[12, 10], zoom=5)
+m.add_geojson(geojson, layer_name="Search results")
+m
+```
+
+**Section 2 — Full GeoAgent session**  
+Create an agent bound to a live map. It autonomously decides which akb tools to
+call, adds GeoJSON layers to the map, and answers in prose:
+
+```python
+from cli.geoagent_tools import make_agent
+import leafmap
+
+m = leafmap.Map(center=[12, 10], zoom=5)
+agent = make_agent(map=m, model="claude-sonnet-4-6")
+
+resp = agent.chat("Find climate displacement sites in northeast Nigeria and add them to the map.")
+show(resp)   # pretty-prints the answer as Markdown with tools-used footer
+```
+
+The agent has the full built-in leafmap tool suite (add/remove/list layers, zoom,
+basemap switching, STAC search) alongside the akb corpus tools.
+
+**Section 3 — Export for external GIS**  
+Dump the full geocoded corpus or a filtered subset to GeoJSON for QGIS / Google Earth:
+
+```python
+full = akb_export_geojson()
+pathlib.Path("corpus.geojson").write_text(json.dumps(full, indent=2))
+```
+
+### Four akb tools available to the agent
+
+| Tool | Description |
+|---|---|
+| `akb_search_locations` | Hybrid BM25 + semantic search → GeoJSON of matching LOC spans |
+| `akb_get_timeline_locations` | Filter all geocoded locations by ISO date window |
+| `akb_get_entity_network` | All corpus knowledge about a named place: co-entities, time refs, excerpts |
+| `akb_export_geojson` | Full corpus export, optionally filtered by document title |
+
+### CLI (no Jupyter required)
+
+```bash
+# Call a tool directly — output is GeoJSON on stdout
+akb geoagent --tool search-locations --query "Lake Chad climate"
+akb geoagent --tool timeline-locations --start 0900 --end 1500 --out medieval.geojson
+akb geoagent --tool entity-network --query "Maiduguri"
+akb geoagent --tool export-geojson --out corpus.geojson
+
+# Full agent prompt (requires geoagent install)
+akb geoagent "Show water management sites from 900–1500 CE"
+```
+
 ## External tool integration
 
 | Tool | How |
@@ -56,6 +133,7 @@ akb serve
 | **QMD** | Point QMD collection at `akb/data/blocks/` |
 | **Claude Code** | `akb serve` → add MCP endpoint `http://localhost:8765/.well-known/mcp.json` |
 | **Observable / Jupyter** | Query `akb/data/archive.db` directly with SQL |
+| **GeoAgent / leafmap** | `pip install -e ".[geoagent]"` — see section above |
 
 ## Data model
 
