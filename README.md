@@ -48,7 +48,7 @@ akb serve
 
 ## GeoAgent integration
 
-akb exposes its corpus as [GeoAgent](https://github.com/opengeoagent/geoagent) tools,
+akb exposes its corpus as [GeoAgent](https://github.com/opengeos/GeoAgent) tools,
 letting you query the knowledge base in natural language and render results on a live
 Leaflet map — with optional overlay of STAC / NASA OPERA satellite data.
 
