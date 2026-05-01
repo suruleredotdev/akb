@@ -308,7 +308,7 @@ def _wrap_geo_tool(fn):
     """Apply @geo_tool if geoagent is installed; otherwise return fn unchanged."""
     try:
         from geoagent import geo_tool
-        return geo_tool(fn)
+        return geo_tool()(fn)
     except ImportError:
         return fn
 
@@ -324,10 +324,15 @@ AKB_TOOLS = [
 def make_agent(map=None, model: str = "claude-sonnet-4-6", **kwargs):
     """Create a GeoAgent pre-loaded with all akb tools.
 
+    When a leafmap.Map is provided the agent is constructed via
+    ``for_leafmap`` so it also receives the full suite of leafmap map-control
+    tools (add layers, zoom, list layers, etc.).  The akb tools are passed as
+    ``extra_tools`` and appear alongside the built-in map tools.
+
     Args:
         map:    A leafmap.Map instance to bind for live rendering (optional).
         model:  LLM model identifier (default: claude-sonnet-4-6).
-        **kwargs: Passed through to GeoAgent().
+        **kwargs: Passed through to for_leafmap() / GeoAgent().
 
     Returns:
         A GeoAgent instance with akb tools registered.
@@ -337,15 +342,21 @@ def make_agent(map=None, model: str = "claude-sonnet-4-6", **kwargs):
         from akb.cli.geoagent_tools import make_agent
         m = leafmap.Map()
         agent = make_agent(map=m)
-        agent.run("Show all 9th-15th century water management sites on the map")
+        resp = agent.chat("Show all 9th-15th century water management sites on the map")
+        print(resp.answer_text)
     """
     try:
         from geoagent import GeoAgent, GeoAgentContext, GeoAgentConfig
+        from geoagent.core.factory import for_leafmap
     except ImportError as e:
         raise ImportError(
             "geoagent is not installed. Run: pip install geoagent"
         ) from e
 
-    config = GeoAgentConfig(model=model)
-    ctx = GeoAgentContext(map=map) if map is not None else GeoAgentContext()
+    config = GeoAgentConfig(provider="anthropic", model=model)
+
+    if map is not None:
+        return for_leafmap(map, config=config, extra_tools=AKB_TOOLS, **kwargs)
+
+    ctx = GeoAgentContext()
     return GeoAgent(tools=AKB_TOOLS, config=config, context=ctx, **kwargs)
