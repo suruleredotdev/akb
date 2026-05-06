@@ -5,6 +5,10 @@ extraction, temporal annotation, and NER — all stored in SQLite, exportable to
 KML, and TIMEX formats.
 
 <img width="600" height="353" alt="Screenshot 2026-04-15 at 10 39 40 PM" src="https://github.com/user-attachments/assets/6e14ed9d-beda-4d68-ac6b-f33c4fa6366c" />
+<br/>
+
+> [!NOTE]
+> Based on our [Archive3D](https://archive-3d.surulere.dev/) research tool and heavily inspired by Tobi Lutke's [QMD](https://github.com/tobi/qmd)
 
 ## Install
 
@@ -48,7 +52,7 @@ akb serve
 
 ## GeoAgent integration
 
-akb exposes its corpus as [GeoAgent](https://github.com/opengeoagent/geoagent) tools,
+akb exposes its corpus as [GeoAgent](https://github.com/opengeos/GeoAgent) tools,
 letting you query the knowledge base in natural language and render results on a live
 Leaflet map — with optional overlay of STAC / NASA OPERA satellite data.
 
