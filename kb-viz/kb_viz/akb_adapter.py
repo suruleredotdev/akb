@@ -96,7 +96,6 @@ class AkbColumnMap:
     # chrono resolution (TIME)
     span_iso_start: str = "iso_start"
     span_iso_end: str = "iso_end"
-    span_granularity: str = "timex_value"
     # entity resolution (PERSON / ORG / KEYWORD)
     span_entity_id: str = "id"
     span_entity_name: str = "normalized_value"
@@ -152,6 +151,17 @@ _GEO_TYPES = {"LOC", "GPE", "FAC"}
 _TIME_TYPES = {"TIME", "DATE"}
 
 
+def _infer_granularity(iso: str) -> str:
+    # e.g. "2024" -> year, "2024-05" -> month, "2024-05-11" -> day, "2024-05-11T10:00" -> hour
+    clean = iso.lstrip("T").split("T")[0]  # strip leading T (TIMEX) and time part
+    parts = clean.split("-")
+    if len(parts) >= 3:
+        return "day"
+    if len(parts) == 2:
+        return "month"
+    return "year"
+
+
 def _row(row: sqlite3.Row, key: str, default: Any = None) -> Any:
     """Safely read a column from a sqlite3.Row, returning default if missing."""
     try:
@@ -201,7 +211,7 @@ def span_to_annotation(row: sqlite3.Row, cols: AkbColumnMap) -> Annotation | Non
         value = TemporalValue(
             iso_start=str(iso_start),
             iso_end=_row(row, cols.span_iso_end),
-            granularity=_row(row, cols.span_granularity, "day"),
+            granularity=_infer_granularity(str(iso_start)),
             raw=_row(row, cols.span_text),
         )
         return Annotation(
