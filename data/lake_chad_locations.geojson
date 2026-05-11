@@ -1,0 +1,379 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.51,
+          8.78
+        ]
+      },
+      "properties": {
+        "name": "Africa",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Overview  Lake Chad, located at the confluence of Chad, Nigeria, Niger, and Cameroon, was once one of Africa's largest freshwater bodies. At its peak in the 1960s, the lake covered approximately 25,000 square kilometr",
+        "time_context": "1986-04-29\u20131986-04-29"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Consequences for Agriculture and Livelihoods  An estimated 40 million people depend on Lake Chad directly for their livelihoods across the four bordering countries. Traditional fishing communities such as the Buduma p",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.94,
+          6.61
+        ]
+      },
+      "properties": {
+        "name": "Central African Republic",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Drivers of Shrinkage  The primary driver of Lake Chad's shrinkage since the 1960s is reduced rainfall across the Sahel region, linked to shifts in the West African Monsoon system. A severe drought between 1972 and 197",
+        "time_context": "1960-04-01\u20131960-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.94,
+          6.61
+        ]
+      },
+      "properties": {
+        "name": "Central African Republic",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Proposed Interventions  The Lake Chad Basin Commission, founded in 1964 and headquartered in N'Djamena, has since the 1990s promoted the Transaqua project \u2014 a proposal to transfer water from the Congo River basin via ",
+        "time_context": "1964-04-01\u20131964-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.73,
+          15.45
+        ]
+      },
+      "properties": {
+        "name": "Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Overview  Lake Chad, located at the confluence of Chad, Nigeria, Niger, and Cameroon, was once one of Africa's largest freshwater bodies. At its peak in the 1960s, the lake covered approximately 25,000 square kilometr",
+        "time_context": "1986-04-29\u20131986-04-29"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.73,
+          15.45
+        ]
+      },
+      "properties": {
+        "name": "Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.54,
+          -0.73
+        ]
+      },
+      "properties": {
+        "name": "Congo River",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Proposed Interventions  The Lake Chad Basin Commission, founded in 1964 and headquartered in N'Djamena, has since the 1990s promoted the Transaqua project \u2014 a proposal to transfer water from the Congo River basin via ",
+        "time_context": "1964-04-01\u20131964-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.61,
+          13.31
+        ]
+      },
+      "properties": {
+        "name": "Diffa, Niger",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Drivers of Shrinkage  The primary driver of Lake Chad's shrinkage since the 1960s is reduced rainfall across the Sahel region, linked to shifts in the West African Monsoon system. A severe drought between 1972 and 197",
+        "time_context": "1960-04-01\u20131960-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.61,
+          13.31
+        ]
+      },
+      "properties": {
+        "name": "Diffa, Niger",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Consequences for Agriculture and Livelihoods  An estimated 40 million people depend on Lake Chad directly for their livelihoods across the four bordering countries. Traditional fishing communities such as the Buduma p",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Historical Context  In the 10th century, Arab geographers described Lake Chad as a great inland sea, navigable by large vessels. The Kanem-Bornu Empire, which controlled the Lake Chad basin from the 9th century throug",
+        "time_context": "0801\u20130900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Drivers of Shrinkage  The primary driver of Lake Chad's shrinkage since the 1960s is reduced rainfall across the Sahel region, linked to shifts in the West African Monsoon system. A severe drought between 1972 and 197",
+        "time_context": "1960-04-01\u20131960-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Drivers of Shrinkage  The primary driver of Lake Chad's shrinkage since the 1960s is reduced rainfall across the Sahel region, linked to shifts in the West African Monsoon system. A severe drought between 1972 and 197",
+        "time_context": "1960-04-01\u20131960-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Consequences for Agriculture and Livelihoods  An estimated 40 million people depend on Lake Chad directly for their livelihoods across the four bordering countries. Traditional fishing communities such as the Buduma p",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          11.85
+        ]
+      },
+      "properties": {
+        "name": "Maiduguri, Borno, Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Overview  Lake Chad, located at the confluence of Chad, Nigeria, Niger, and Cameroon, was once one of Africa's largest freshwater bodies. At its peak in the 1960s, the lake covered approximately 25,000 square kilometr",
+        "time_context": "1986-04-29\u20131986-04-29"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Drivers of Shrinkage  The primary driver of Lake Chad's shrinkage since the 1960s is reduced rainfall across the Sahel region, linked to shifts in the West African Monsoon system. A severe drought between 1972 and 197",
+        "time_context": "1960-04-01\u20131960-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Consequences for Agriculture and Livelihoods  An estimated 40 million people depend on Lake Chad directly for their livelihoods across the four bordering countries. Traditional fishing communities such as the Buduma p",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Proposed Interventions  The Lake Chad Basin Commission, founded in 1964 and headquartered in N'Djamena, has since the 1990s promoted the Transaqua project \u2014 a proposal to transfer water from the Congo River basin via ",
+        "time_context": "1964-04-01\u20131964-04-01"
+      }
+    }
+  ]
+}

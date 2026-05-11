@@ -1,0 +1,1824 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.4,
+          9.33
+        ]
+      },
+      "properties": {
+        "name": "Adamawa State, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Overview  Boko Haram \u2014 formally Jam\u0101'at Ahl as-Sunnah lid-Da'wah wa'l-Jih\u0101d \u2014 emerged in Maiduguri, the capital of Borno State in northeast Nigeria, in 2002 under the leadership of Mohammed Yusuf. By 2014, the group c",
+        "time_context": "2002-04-01\u20132002-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.51,
+          8.78
+        ]
+      },
+      "properties": {
+        "name": "Africa",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Overview  Lake Chad, located at the confluence of Chad, Nigeria, Niger, and Cameroon, was once one of Africa's largest freshwater bodies. At its peak in the 1960s, the lake covered approximately 25,000 square kilometr",
+        "time_context": "1986-04-29\u20131986-04-29"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.51,
+          8.78
+        ]
+      },
+      "properties": {
+        "name": "Africa",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "## Origins and Geography  The Kanem-Bornu Empire was one of the longest-lived political entities in African history, spanning from approximately the 9th century CE to the late 19th century. At its greatest extent in the ",
+        "time_context": "0801\u20130900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.51,
+          8.78
+        ]
+      },
+      "properties": {
+        "name": "Africa",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Rotating Savings and Credit Associations  Rotating savings and credit associations (ROSCAs) \u2014 known as esusu or ajo among the Yoruba of southwestern Nigeria, adashi among the Hausa of northern Nigeria, susu in Ghana a",
+        "time_context": "2019-04-01\u20132019-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.51,
+          8.78
+        ]
+      },
+      "properties": {
+        "name": "Africa",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Mobile Money and Digital Extensions  The emergence of mobile money platforms across sub-Saharan Africa since 2007 \u2014 beginning with M-Pesa in Kenya \u2014 has created infrastructure that ROSCA organisers have adapted for di",
+        "time_context": "2007-04-01\u20132007-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          45.08,
+          23.89
+        ]
+      },
+      "properties": {
+        "name": "Arabian Peninsula",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## The Economic Displacement Thesis  A dominant early narrative attributed Boko Haram's rise primarily to religious radicalisation, framing the conflict as a product of Salafist ideology spreading from the Arabian Penins",
+        "time_context": "2015-04-01\u20132015-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Consequences for Agriculture and Livelihoods  An estimated 40 million people depend on Lake Chad directly for their livelihoods across the four bordering countries. Traditional fishing communities such as the Buduma p",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "## Decline and Disruption  The Kanem-Bornu Empire entered a prolonged period of decline in the 19th century. The Fulani jihad of 1804 to 1808, led by Usman dan Fodio from Sokoto, destroyed Ngazargamu in 1808 and fundamen",
+        "time_context": "1801\u20131900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "## Legacy and Contemporary Relevance  The Kanem-Bornu tradition of integrating Islamic scholarship, empirical agricultural knowledge, and centralised water management represents a significant and underutilised resource f",
+        "time_context": "2010\u20132010"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Overview  Boko Haram \u2014 formally Jam\u0101'at Ahl as-Sunnah lid-Da'wah wa'l-Jih\u0101d \u2014 emerged in Maiduguri, the capital of Borno State in northeast Nigeria, in 2002 under the leadership of Mohammed Yusuf. By 2014, the group c",
+        "time_context": "2002-04-01\u20132002-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Overview  Boko Haram \u2014 formally Jam\u0101'at Ahl as-Sunnah lid-Da'wah wa'l-Jih\u0101d \u2014 emerged in Maiduguri, the capital of Borno State in northeast Nigeria, in 2002 under the leadership of Mohammed Yusuf. By 2014, the group c",
+        "time_context": "2002-04-01\u20132002-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Climate-Conflict Linkages  The connection between Lake Chad's shrinkage and conflict in the basin has been documented in increasing detail since 2015. Key findings include:  **Livelihood collapse**: Between 1983 and 2",
+        "time_context": "1975-04-01\u20131975-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Maiduguri as Convergence Point  Maiduguri, with a pre-conflict population of approximately 600,000 in 2009, absorbed an estimated 350,000 internally displaced persons between 2014 and 2017. The city had historically f",
+        "time_context": "2008-04-01\u20132008-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Borno State, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Security Responses and their Limitations  The Nigerian military's Operation Lafiya Dole, launched in 2016 and coordinated with the Multinational Joint Task Force from N'Djamena, achieved significant territorial recapt",
+        "time_context": "2016-04-01\u20132016-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.94,
+          6.61
+        ]
+      },
+      "properties": {
+        "name": "Central African Republic",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Drivers of Shrinkage  The primary driver of Lake Chad's shrinkage since the 1960s is reduced rainfall across the Sahel region, linked to shifts in the West African Monsoon system. A severe drought between 1972 and 197",
+        "time_context": "1960-04-01\u20131960-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.94,
+          6.61
+        ]
+      },
+      "properties": {
+        "name": "Central African Republic",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Proposed Interventions  The Lake Chad Basin Commission, founded in 1964 and headquartered in N'Djamena, has since the 1990s promoted the Transaqua project \u2014 a proposal to transfer water from the Congo River basin via ",
+        "time_context": "1964-04-01\u20131964-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.73,
+          15.45
+        ]
+      },
+      "properties": {
+        "name": "Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Overview  Lake Chad, located at the confluence of Chad, Nigeria, Niger, and Cameroon, was once one of Africa's largest freshwater bodies. At its peak in the 1960s, the lake covered approximately 25,000 square kilometr",
+        "time_context": "1986-04-29\u20131986-04-29"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.73,
+          15.45
+        ]
+      },
+      "properties": {
+        "name": "Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.73,
+          15.45
+        ]
+      },
+      "properties": {
+        "name": "Chad",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "## Origins and Geography  The Kanem-Bornu Empire was one of the longest-lived political entities in African history, spanning from approximately the 9th century CE to the late 19th century. At its greatest extent in the ",
+        "time_context": "0801\u20130900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.73,
+          15.45
+        ]
+      },
+      "properties": {
+        "name": "Chad",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "## Decline and Disruption  The Kanem-Bornu Empire entered a prolonged period of decline in the 19th century. The Fulani jihad of 1804 to 1808, led by Usman dan Fodio from Sokoto, destroyed Ngazargamu in 1808 and fundamen",
+        "time_context": "1801\u20131900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          18.73,
+          15.45
+        ]
+      },
+      "properties": {
+        "name": "Chad",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Remaining Challenges  Regulatory ambiguity around cryptocurrency and digital assets in Nigeria \u2014 including the Central Bank of Nigeria's directive in February 2021 prohibiting banks from servicing cryptocurrency excha",
+        "time_context": "2021-02-01\u20132021-02-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.54,
+          -0.73
+        ]
+      },
+      "properties": {
+        "name": "Congo River",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Proposed Interventions  The Lake Chad Basin Commission, founded in 1964 and headquartered in N'Djamena, has since the 1990s promoted the Transaqua project \u2014 a proposal to transfer water from the Congo River basin via ",
+        "time_context": "1964-04-01\u20131964-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.96,
+          11.75
+        ]
+      },
+      "properties": {
+        "name": "Damaturu, Yobe, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Climate-Conflict Linkages  The connection between Lake Chad's shrinkage and conflict in the basin has been documented in increasing detail since 2015. Key findings include:  **Livelihood collapse**: Between 1983 and 2",
+        "time_context": "1975-04-01\u20131975-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.61,
+          13.31
+        ]
+      },
+      "properties": {
+        "name": "Diffa, Niger",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Drivers of Shrinkage  The primary driver of Lake Chad's shrinkage since the 1960s is reduced rainfall across the Sahel region, linked to shifts in the West African Monsoon system. A severe drought between 1972 and 197",
+        "time_context": "1960-04-01\u20131960-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.61,
+          13.31
+        ]
+      },
+      "properties": {
+        "name": "Diffa, Niger",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Consequences for Agriculture and Livelihoods  An estimated 40 million people depend on Lake Chad directly for their livelihoods across the four bordering countries. Traditional fishing communities such as the Buduma p",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.61,
+          13.31
+        ]
+      },
+      "properties": {
+        "name": "Diffa, Niger",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Remaining Challenges  Regulatory ambiguity around cryptocurrency and digital assets in Nigeria \u2014 including the Central Bank of Nigeria's directive in February 2021 prohibiting banks from servicing cryptocurrency excha",
+        "time_context": "2021-02-01\u20132021-02-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          12.61,
+          13.31
+        ]
+      },
+      "properties": {
+        "name": "Diffa, Niger",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Climate-Conflict Linkages  The connection between Lake Chad's shrinkage and conflict in the basin has been documented in increasing detail since 2015. Key findings include:  **Livelihood collapse**: Between 1983 and 2",
+        "time_context": "1975-04-01\u20131975-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          30.8,
+          26.82
+        ]
+      },
+      "properties": {
+        "name": "Egypt",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "### Water Management Infrastructure  Local oral histories recorded by German ethnographer Heinrich Barth during his 1851 expedition to Kukawa describe extensive canal systems in the Komadugu Yobe river valley \u2014 the river",
+        "time_context": "1851-04-01\u20131851-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.02,
+          7.95
+        ]
+      },
+      "properties": {
+        "name": "Ghana",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Rotating Savings and Credit Associations  Rotating savings and credit associations (ROSCAs) \u2014 known as esusu or ajo among the Yoruba of southwestern Nigeria, adashi among the Hausa of northern Nigeria, susu in Ghana a",
+        "time_context": "2019-04-01\u20132019-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.69,
+          10.88
+        ]
+      },
+      "properties": {
+        "name": "Gwoza, Borno, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Overview  Boko Haram \u2014 formally Jam\u0101'at Ahl as-Sunnah lid-Da'wah wa'l-Jih\u0101d \u2014 emerged in Maiduguri, the capital of Borno State in northeast Nigeria, in 2002 under the leadership of Mohammed Yusuf. By 2014, the group c",
+        "time_context": "2002-04-01\u20132002-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.52,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Hausaland, Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Historical Roots  The esusu system in Yorubaland can be traced in oral tradition to at least the 18th century, though the concept of rotating pooled resources almost certainly predates documented records. Missionary a",
+        "time_context": "1701\u20131800"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.35,
+          12.22
+        ]
+      },
+      "properties": {
+        "name": "Jigawa State, Nigeria",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "### Swales and Contour Bunds (West Africa broadly)  Contour bunds \u2014 low earth embankments constructed along topographic contour lines \u2014 slow and spread surface runoff, increasing infiltration and reducing erosion. Simila",
+        "time_context": "1900\u20131900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.52,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Kano, Nigeria",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "### Swales and Contour Bunds (West Africa broadly)  Contour bunds \u2014 low earth embankments constructed along topographic contour lines \u2014 slow and spread surface runoff, increasing infiltration and reducing erosion. Simila",
+        "time_context": "1900\u20131900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.52,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Kano, Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Historical Roots  The esusu system in Yorubaland can be traced in oral tradition to at least the 18th century, though the concept of rotating pooled resources almost certainly predates documented records. Missionary a",
+        "time_context": "1701\u20131800"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.52,
+          12.0
+        ]
+      },
+      "properties": {
+        "name": "Kano, Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Historical Roots  The esusu system in Yorubaland can be traced in oral tradition to at least the 18th century, though the concept of rotating pooled resources almost certainly predates documented records. Missionary a",
+        "time_context": "1701\u20131800"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.6,
+          12.99
+        ]
+      },
+      "properties": {
+        "name": "Katsina, Nigeria",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "### Swales and Contour Bunds (West Africa broadly)  Contour bunds \u2014 low earth embankments constructed along topographic contour lines \u2014 slow and spread surface runoff, increasing infiltration and reducing erosion. Simila",
+        "time_context": "1900\u20131900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.91,
+          0.02
+        ]
+      },
+      "properties": {
+        "name": "Kenya",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Mobile Money and Digital Extensions  The emergence of mobile money platforms across sub-Saharan Africa since 2007 \u2014 beginning with M-Pesa in Kenya \u2014 has created infrastructure that ROSCA organisers have adapted for di",
+        "time_context": "2007-04-01\u20132007-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          37.91,
+          0.02
+        ]
+      },
+      "properties": {
+        "name": "Kenya",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Blockchain-Based Experiments  Since 2018, several projects have attempted to extend ROSCA-like mechanisms through blockchain protocols, particularly in Nigeria and Kenya. The premise is that smart contracts on public ",
+        "time_context": "2010-04-01\u20132010-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.85,
+          -3.63
+        ]
+      },
+      "properties": {
+        "name": "Kilifi, Kenya",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Blockchain-Based Experiments  Since 2018, several projects have attempted to extend ROSCA-like mechanisms through blockchain protocols, particularly in Nigeria and Kenya. The premise is that smart contracts on public ",
+        "time_context": "2010-04-01\u20132010-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.85,
+          -3.63
+        ]
+      },
+      "properties": {
+        "name": "Kilifi, Kenya",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Blockchain-Based Experiments  Since 2018, several projects have attempted to extend ROSCA-like mechanisms through blockchain protocols, particularly in Nigeria and Kenya. The premise is that smart contracts on public ",
+        "time_context": "2010-04-01\u20132010-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.54,
+          12.92
+        ]
+      },
+      "properties": {
+        "name": "Kukawa, Borno, Nigeria",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "### Agricultural Knowledge  Kanem-Bornu agricultural practice integrated detailed ecological knowledge of the lake's seasonal rhythms. The mai (king) and his provincial governors maintained records \u2014 transmitted through ",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.54,
+          12.92
+        ]
+      },
+      "properties": {
+        "name": "Kukawa, Borno, Nigeria",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "### Islamic Scholarship and Scientific Knowledge  The cities of Kukawa, Ngazargamu, and later Kano (whose Emirate was closely linked to Bornu through trade and scholarship) were major centres of Islamic learning from the",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.38,
+          6.52
+        ]
+      },
+      "properties": {
+        "name": "Lagos, Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Historical Roots  The esusu system in Yorubaland can be traced in oral tradition to at least the 18th century, though the concept of rotating pooled resources almost certainly predates documented records. Missionary a",
+        "time_context": "1701\u20131800"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.38,
+          6.52
+        ]
+      },
+      "properties": {
+        "name": "Lagos, Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Structural Limitations and Failure Modes  ROSCAs function on trust and social sanction. Their limitations in contexts of high mobility, urban anonymity, and economic volatility \u2014 all characteristics of rapidly urbanis",
+        "time_context": "2010\u20132010"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "## Flood Mitigation and Agricultural Synergies  A critical but underappreciated function of these water-harvesting structures is flood attenuation. In flat Sahelian landscapes, intense rainfall events \u2014 particularly the ",
+        "time_context": "2000-04-01\u20132000-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Historical Context  In the 10th century, Arab geographers described Lake Chad as a great inland sea, navigable by large vessels. The Kanem-Bornu Empire, which controlled the Lake Chad basin from the 9th century throug",
+        "time_context": "0801\u20130900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Drivers of Shrinkage  The primary driver of Lake Chad's shrinkage since the 1960s is reduced rainfall across the Sahel region, linked to shifts in the West African Monsoon system. A severe drought between 1972 and 197",
+        "time_context": "1960-04-01\u20131960-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Drivers of Shrinkage  The primary driver of Lake Chad's shrinkage since the 1960s is reduced rainfall across the Sahel region, linked to shifts in the West African Monsoon system. A severe drought between 1972 and 197",
+        "time_context": "1960-04-01\u20131960-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Consequences for Agriculture and Livelihoods  An estimated 40 million people depend on Lake Chad directly for their livelihoods across the four bordering countries. Traditional fishing communities such as the Buduma p",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "## Origins and Geography  The Kanem-Bornu Empire was one of the longest-lived political entities in African history, spanning from approximately the 9th century CE to the late 19th century. At its greatest extent in the ",
+        "time_context": "0801\u20130900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "## Legacy and Contemporary Relevance  The Kanem-Bornu tradition of integrating Islamic scholarship, empirical agricultural knowledge, and centralised water management represents a significant and underutilised resource f",
+        "time_context": "2010\u20132010"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Overview  Boko Haram \u2014 formally Jam\u0101'at Ahl as-Sunnah lid-Da'wah wa'l-Jih\u0101d \u2014 emerged in Maiduguri, the capital of Borno State in northeast Nigeria, in 2002 under the leadership of Mohammed Yusuf. By 2014, the group c",
+        "time_context": "2002-04-01\u20132002-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## The Economic Displacement Thesis  A dominant early narrative attributed Boko Haram's rise primarily to religious radicalisation, framing the conflict as a product of Salafist ideology spreading from the Arabian Penins",
+        "time_context": "2015-04-01\u20132015-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Climate-Conflict Linkages  The connection between Lake Chad's shrinkage and conflict in the basin has been documented in increasing detail since 2015. Key findings include:  **Livelihood collapse**: Between 1983 and 2",
+        "time_context": "1975-04-01\u20131975-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Climate-Conflict Linkages  The connection between Lake Chad's shrinkage and conflict in the basin has been documented in increasing detail since 2015. Key findings include:  **Livelihood collapse**: Between 1983 and 2",
+        "time_context": "1975-04-01\u20131975-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Maiduguri as Convergence Point  Maiduguri, with a pre-conflict population of approximately 600,000 in 2009, absorbed an estimated 350,000 internally displaced persons between 2014 and 2017. The city had historically f",
+        "time_context": "2008-04-01\u20132008-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.0,
+          13.5
+        ]
+      },
+      "properties": {
+        "name": "Lake Chad",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Security Responses and their Limitations  The Nigerian military's Operation Lafiya Dole, launched in 2016 and coordinated with the Multinational Joint Task Force from N'Djamena, achieved significant territorial recapt",
+        "time_context": "2016-04-01\u20132016-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          11.85
+        ]
+      },
+      "properties": {
+        "name": "Maiduguri, Borno, Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          11.85
+        ]
+      },
+      "properties": {
+        "name": "Maiduguri, Borno, Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Structural Limitations and Failure Modes  ROSCAs function on trust and social sanction. Their limitations in contexts of high mobility, urban anonymity, and economic volatility \u2014 all characteristics of rapidly urbanis",
+        "time_context": "2010\u20132010"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          11.85
+        ]
+      },
+      "properties": {
+        "name": "Maiduguri, Borno, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Overview  Boko Haram \u2014 formally Jam\u0101'at Ahl as-Sunnah lid-Da'wah wa'l-Jih\u0101d \u2014 emerged in Maiduguri, the capital of Borno State in northeast Nigeria, in 2002 under the leadership of Mohammed Yusuf. By 2014, the group c",
+        "time_context": "2002-04-01\u20132002-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          11.85
+        ]
+      },
+      "properties": {
+        "name": "Maiduguri, Borno, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## The Economic Displacement Thesis  A dominant early narrative attributed Boko Haram's rise primarily to religious radicalisation, framing the conflict as a product of Salafist ideology spreading from the Arabian Penins",
+        "time_context": "2015-04-01\u20132015-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          11.85
+        ]
+      },
+      "properties": {
+        "name": "Maiduguri, Borno, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Climate-Conflict Linkages  The connection between Lake Chad's shrinkage and conflict in the basin has been documented in increasing detail since 2015. Key findings include:  **Livelihood collapse**: Between 1983 and 2",
+        "time_context": "1975-04-01\u20131975-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          11.85
+        ]
+      },
+      "properties": {
+        "name": "Maiduguri, Borno, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Maiduguri as Convergence Point  Maiduguri, with a pre-conflict population of approximately 600,000 in 2009, absorbed an estimated 350,000 internally displaced persons between 2014 and 2017. The city had historically f",
+        "time_context": "2008-04-01\u20132008-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.16,
+          11.85
+        ]
+      },
+      "properties": {
+        "name": "Maiduguri, Borno, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Security Responses and their Limitations  The Nigerian military's Operation Lafiya Dole, launched in 2016 and coordinated with the Multinational Joint Task Force from N'Djamena, achieved significant territorial recapt",
+        "time_context": "2016-04-01\u20132016-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.67,
+          -4.05
+        ]
+      },
+      "properties": {
+        "name": "Mombasa, Kenya",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Blockchain-Based Experiments  Since 2018, several projects have attempted to extend ROSCA-like mechanisms through blockchain protocols, particularly in Nigeria and Kenya. The premise is that smart contracts on public ",
+        "time_context": "2010-04-01\u20132010-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          36.82,
+          -1.29
+        ]
+      },
+      "properties": {
+        "name": "Nairobi, Kenya",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Blockchain-Based Experiments  Since 2018, several projects have attempted to extend ROSCA-like mechanisms through blockchain protocols, particularly in Nigeria and Kenya. The premise is that smart contracts on public ",
+        "time_context": "2010-04-01\u20132010-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.93,
+          13.11
+        ]
+      },
+      "properties": {
+        "name": "Ngazargamu (historical), Nigeria/Niger",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "### Agricultural Knowledge  Kanem-Bornu agricultural practice integrated detailed ecological knowledge of the lake's seasonal rhythms. The mai (king) and his provincial governors maintained records \u2014 transmitted through ",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.93,
+          13.11
+        ]
+      },
+      "properties": {
+        "name": "Ngazargamu (historical), Nigeria/Niger",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "### Islamic Scholarship and Scientific Knowledge  The cities of Kukawa, Ngazargamu, and later Kano (whose Emirate was closely linked to Bornu through trade and scholarship) were major centres of Islamic learning from the",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.12,
+          13.51
+        ]
+      },
+      "properties": {
+        "name": "Niamey, Niger",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "## Flood Mitigation and Agricultural Synergies  A critical but underappreciated function of these water-harvesting structures is flood attenuation. In flat Sahelian landscapes, intense rainfall events \u2014 particularly the ",
+        "time_context": "2000-04-01\u20132000-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.08,
+          17.61
+        ]
+      },
+      "properties": {
+        "name": "Niger",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "### Water Management Infrastructure  Local oral histories recorded by German ethnographer Heinrich Barth during his 1851 expedition to Kukawa describe extensive canal systems in the Komadugu Yobe river valley \u2014 the river",
+        "time_context": "1851-04-01\u20131851-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "### Swales and Contour Bunds (West Africa broadly)  Contour bunds \u2014 low earth embankments constructed along topographic contour lines \u2014 slow and spread surface runoff, increasing infiltration and reducing erosion. Simila",
+        "time_context": "1900\u20131900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "## Integration with Modern Infrastructure  Several programmes since 2015 have attempted to formalise traditional water harvesting into rural infrastructure planning. In Niger, the 3N Initiative (Nigeriens Nourishing Nige",
+        "time_context": "2011-04-01\u20132011-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Overview  Lake Chad, located at the confluence of Chad, Nigeria, Niger, and Cameroon, was once one of Africa's largest freshwater bodies. At its peak in the 1960s, the lake covered approximately 25,000 square kilometr",
+        "time_context": "1986-04-29\u20131986-04-29"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Drivers of Shrinkage  The primary driver of Lake Chad's shrinkage since the 1960s is reduced rainfall across the Sahel region, linked to shifts in the West African Monsoon system. A severe drought between 1972 and 197",
+        "time_context": "1960-04-01\u20131960-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Consequences for Agriculture and Livelihoods  An estimated 40 million people depend on Lake Chad directly for their livelihoods across the four bordering countries. Traditional fishing communities such as the Buduma p",
+        "time_context": "1301\u20131400"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Link to Conflict and Displacement  Research published between 2015 and 2022 has increasingly drawn connections between ecological stress around Lake Chad and the emergence and sustenance of the Boko Haram insurgency i",
+        "time_context": "2000\u20132000"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Lake Chad Climate",
+        "source_url": "",
+        "excerpt": "## Proposed Interventions  The Lake Chad Basin Commission, founded in 1964 and headquartered in N'Djamena, has since the 1990s promoted the Transaqua project \u2014 a proposal to transfer water from the Congo River basin via ",
+        "time_context": "1964-04-01\u20131964-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "## Origins and Geography  The Kanem-Bornu Empire was one of the longest-lived political entities in African history, spanning from approximately the 9th century CE to the late 19th century. At its greatest extent in the ",
+        "time_context": "0801\u20130900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "### Water Management Infrastructure  Local oral histories recorded by German ethnographer Heinrich Barth during his 1851 expedition to Kukawa describe extensive canal systems in the Komadugu Yobe river valley \u2014 the river",
+        "time_context": "1851-04-01\u20131851-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "## Decline and Disruption  The Kanem-Bornu Empire entered a prolonged period of decline in the 19th century. The Fulani jihad of 1804 to 1808, led by Usman dan Fodio from Sokoto, destroyed Ngazargamu in 1808 and fundamen",
+        "time_context": "1801\u20131900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Kanem Bornu Empire",
+        "source_url": "",
+        "excerpt": "## Legacy and Contemporary Relevance  The Kanem-Bornu tradition of integrating Islamic scholarship, empirical agricultural knowledge, and centralised water management represents a significant and underutilised resource f",
+        "time_context": "2010\u20132010"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Rotating Savings and Credit Associations  Rotating savings and credit associations (ROSCAs) \u2014 known as esusu or ajo among the Yoruba of southwestern Nigeria, adashi among the Hausa of northern Nigeria, susu in Ghana a",
+        "time_context": "2019-04-01\u20132019-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Historical Roots  The esusu system in Yorubaland can be traced in oral tradition to at least the 18th century, though the concept of rotating pooled resources almost certainly predates documented records. Missionary a",
+        "time_context": "1701\u20131800"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Mobile Money and Digital Extensions  The emergence of mobile money platforms across sub-Saharan Africa since 2007 \u2014 beginning with M-Pesa in Kenya \u2014 has created infrastructure that ROSCA organisers have adapted for di",
+        "time_context": "2007-04-01\u20132007-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Blockchain-Based Experiments  Since 2018, several projects have attempted to extend ROSCA-like mechanisms through blockchain protocols, particularly in Nigeria and Kenya. The premise is that smart contracts on public ",
+        "time_context": "2010-04-01\u20132010-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Remaining Challenges  Regulatory ambiguity around cryptocurrency and digital assets in Nigeria \u2014 including the Central Bank of Nigeria's directive in February 2021 prohibiting banks from servicing cryptocurrency excha",
+        "time_context": "2021-02-01\u20132021-02-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "# Boko Haram: Climate, Economic Displacement and Insurgency in Northeast Nigeria",
+        "time_context": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.67,
+          9.08
+        ]
+      },
+      "properties": {
+        "name": "Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Overview  Boko Haram \u2014 formally Jam\u0101'at Ahl as-Sunnah lid-Da'wah wa'l-Jih\u0101d \u2014 emerged in Maiduguri, the capital of Borno State in northeast Nigeria, in 2002 under the leadership of Mohammed Yusuf. By 2014, the group c",
+        "time_context": "2002-04-01\u20132002-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -17.4844244,
+          14.7603602
+        ]
+      },
+      "properties": {
+        "name": "Ny\u00e9l\u00e9ni Maison Sahel, Rue YF109, Commune de Yoff, Arrondissement des Almadies, Dakar, R\u00e9gion de Dakar, 12000, S\u00e9n\u00e9gal",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "## Introduction  The Sahel \u2014 the semi-arid belt stretching across Africa from Senegal in the west to Eritrea in the east \u2014 receives between 200 and 600 millimetres of rainfall annually, almost entirely concentrated in a ",
+        "time_context": "2026-09-01\u20132026-09-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.26,
+          51.75
+        ]
+      },
+      "properties": {
+        "name": "Oxford, UK",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Security Responses and their Limitations  The Nigerian military's Operation Lafiya Dole, launched in 2016 and coordinated with the Multinational Joint Task Force from N'Djamena, achieved significant territorial recapt",
+        "time_context": "2016-04-01\u20132016-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -1.6311018,
+          14.0911931
+        ]
+      },
+      "properties": {
+        "name": "Restauratant rond point maman africa, N 22, Tilere, Djibo, Soum, Sahel, Burkina Faso",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "## Introduction  The Sahel \u2014 the semi-arid belt stretching across Africa from Senegal in the west to Eritrea in the east \u2014 receives between 200 and 600 millimetres of rainfall annually, almost entirely concentrated in a ",
+        "time_context": "2026-09-01\u20132026-09-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          17.0,
+          14.5
+        ]
+      },
+      "properties": {
+        "name": "Sahel",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "# Water Harvesting Techniques in the Sahel: Traditional and Modern Approaches",
+        "time_context": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          39.42192,
+          14.7012672
+        ]
+      },
+      "properties": {
+        "name": "Sahel Hotel \u0641\u0646\u062f\u0642 \u0627\u0644\u0633\u0627\u062d\u0644, Asmara Zalambesa road \u0637\u0631\u064a\u0642 \u0623\u0633\u0645\u0631\u0629 - \u0632\u0627\u0644\u0627\u0645\u0628\u0633\u0627, \u1230\u1295\u12d3\u1348 Senafe \u0635\u0646\u0639\u0641\u064a, \u12de\u1263 \u12f0\u1261\u1265 Debub \u0645\u0646\u0637\u0642\u0629 \u0627\u0644\u062c\u0646\u0648\u0628, \u12a4\u122d\u1275\u122b Eritrea \u0625\u0631\u062a\u0631\u064a\u0627",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "## Introduction  The Sahel \u2014 the semi-arid belt stretching across Africa from Senegal in the west to Eritrea in the east \u2014 receives between 200 and 600 millimetres of rainfall annually, almost entirely concentrated in a ",
+        "time_context": "2026-09-01\u20132026-09-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -0.7717776,
+          14.0279165
+        ]
+      },
+      "properties": {
+        "name": "Sahel, Burkina Faso",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "### Za\u00ef Pits (Burkina Faso and Mali)  The za\u00ef technique, practised by Mossi farmers in the Yatenga province of Burkina Faso for at least 500 years, involves digging shallow planting pits \u2014 approximately 20 centimetres wi",
+        "time_context": "0500\u20130500"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.1463928,
+          13.531712
+        ]
+      },
+      "properties": {
+        "name": "Sahel, Rue RF - 182, Route Filingu\u00e9, Arrondissement Communal Niamey 4, Niamey, Kollo, 8000, Niger",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "### Za\u00ef Pits (Burkina Faso and Mali)  The za\u00ef technique, practised by Mossi farmers in the Yatenga province of Burkina Faso for at least 500 years, involves digging shallow planting pits \u2014 approximately 20 centimetres wi",
+        "time_context": "0500\u20130500"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.55,
+          9.52
+        ]
+      },
+      "properties": {
+        "name": "West Africa",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "### Swales and Contour Bunds (West Africa broadly)  Contour bunds \u2014 low earth embankments constructed along topographic contour lines \u2014 slow and spread surface runoff, increasing infiltration and reducing erosion. Simila",
+        "time_context": "1900\u20131900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.55,
+          9.52
+        ]
+      },
+      "properties": {
+        "name": "West Africa",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "### Swales and Contour Bunds (West Africa broadly)  Contour bunds \u2014 low earth embankments constructed along topographic contour lines \u2014 slow and spread surface runoff, increasing infiltration and reducing erosion. Simila",
+        "time_context": "1900\u20131900"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.55,
+          9.52
+        ]
+      },
+      "properties": {
+        "name": "West Africa",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Rotating Savings and Credit Associations  Rotating savings and credit associations (ROSCAs) \u2014 known as esusu or ajo among the Yoruba of southwestern Nigeria, adashi among the Hausa of northern Nigeria, susu in Ghana a",
+        "time_context": "2019-04-01\u20132019-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -2.21,
+          13.78
+        ]
+      },
+      "properties": {
+        "name": "Yatenga Province, Burkina Faso",
+        "block_title": "Water Harvesting Sahel",
+        "source_url": "",
+        "excerpt": "### Za\u00ef Pits (Burkina Faso and Mali)  The za\u00ef technique, practised by Mossi farmers in the Yatenga province of Burkina Faso for at least 500 years, involves digging shallow planting pits \u2014 approximately 20 centimetres wi",
+        "time_context": "0500\u20130500"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.44,
+          12.29
+        ]
+      },
+      "properties": {
+        "name": "Yobe State, Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Remaining Challenges  Regulatory ambiguity around cryptocurrency and digital assets in Nigeria \u2014 including the Central Bank of Nigeria's directive in February 2021 prohibiting banks from servicing cryptocurrency excha",
+        "time_context": "2021-02-01\u20132021-02-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.44,
+          12.29
+        ]
+      },
+      "properties": {
+        "name": "Yobe State, Nigeria",
+        "block_title": "Boko Haram Political Economy",
+        "source_url": "",
+        "excerpt": "## Climate-Conflict Linkages  The connection between Lake Chad's shrinkage and conflict in the basin has been documented in increasing detail since 2015. Key findings include:  **Livelihood collapse**: Between 1983 and 2",
+        "time_context": "1975-04-01\u20131975-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.93,
+          7.87
+        ]
+      },
+      "properties": {
+        "name": "Yorubaland, Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Rotating Savings and Credit Associations  Rotating savings and credit associations (ROSCAs) \u2014 known as esusu or ajo among the Yoruba of southwestern Nigeria, adashi among the Hausa of northern Nigeria, susu in Ghana a",
+        "time_context": "2019-04-01\u20132019-04-01"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.93,
+          7.87
+        ]
+      },
+      "properties": {
+        "name": "Yorubaland, Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Historical Roots  The esusu system in Yorubaland can be traced in oral tradition to at least the 18th century, though the concept of rotating pooled resources almost certainly predates documented records. Missionary a",
+        "time_context": "1701\u20131800"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.93,
+          7.87
+        ]
+      },
+      "properties": {
+        "name": "Yorubaland, Nigeria",
+        "block_title": "Decentralised Finance Africa",
+        "source_url": "",
+        "excerpt": "## Historical Roots  The esusu system in Yorubaland can be traced in oral tradition to at least the 18th century, though the concept of rotating pooled resources almost certainly predates documented records. Missionary a",
+        "time_context": "1701\u20131800"
+      }
+    }
+  ]
+}
