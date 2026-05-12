@@ -1,39 +1,54 @@
 import { useEffect, useMemo, useRef } from 'react';
 import * as Plot from '@observablehq/plot';
 import { useStore } from '../lib/use-store';
+import { useScopedIds } from '../lib/use-scoped-ids';
 import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
+import { makeColorEncoder, rgbaToHex } from '../lib/color-encoder';
 import { getScalar } from '../types/manifest';
 
 interface Datum {
   id: string;
   x: number;
   y: number;
+  color: string;
   selected: boolean;
 }
 
 export function ChartFrame() {
   const nodesById = useStore(dataStore, (s) => s.nodes);
-  const byType = useStore(dataStore, (s) => s.byType);
+  const nodeTypes = useStore(dataStore, (s) => s.manifest?.node_types ?? []);
   const level = useStore(viewStore, (s) => s.level);
+  const colorBy = useStore(viewStore, (s) => s.colorBy);
   const selected = useStore(selectionStore, (s) => s.selected);
+  const scopedIds = useScopedIds(level);
   const ref = useRef<HTMLDivElement>(null);
 
+  const encode = useMemo(
+    () => makeColorEncoder(nodesById, nodeTypes, colorBy),
+    [nodesById, nodeTypes, colorBy],
+  );
+
   const data = useMemo<Datum[]>(() => {
-    const ids = byType.get(level) ?? [];
     const out: Datum[] = [];
-    for (const id of ids) {
+    for (const id of scopedIds) {
       const n = nodesById.get(id);
       if (!n) continue;
       const x = getScalar(n, 'position') ?? getScalar(n, 'chunk_index');
       const y = getScalar(n, 'length') ?? getScalar(n, 'chunk_count');
       if (x !== undefined && y !== undefined) {
-        out.push({ id, x, y, selected: selected.has(id) });
+        out.push({
+          id,
+          x,
+          y,
+          color: rgbaToHex(encode(id, selected.has(id))),
+          selected: selected.has(id),
+        });
       }
     }
     return out;
-  }, [nodesById, byType, level, selected]);
+  }, [nodesById, scopedIds, encode, selected]);
 
   useEffect(() => {
     const el = ref.current;
@@ -65,7 +80,7 @@ export function ChartFrame() {
           x: 'x',
           y: 'y',
           r: ((d: Datum) => (d.selected ? 8 : 5)) as unknown as number,
-          fill: ((d: Datum) => (d.selected ? '#f05028' : '#22d3ee')) as unknown as string,
+          fill: 'color',
           stroke: 'white',
           strokeOpacity: 0.3,
           title: (d: Datum) => `${d.id}\nposition=${d.x.toFixed(2)} length=${d.y}`,
@@ -76,14 +91,10 @@ export function ChartFrame() {
       const item = data[i];
       if (!item) return;
       (circle as SVGElement).style.cursor = 'pointer';
-      circle.addEventListener('click', () =>
-        selectionStore.getState().selectOnly(item.id),
-      );
+      circle.addEventListener('click', () => selectionStore.getState().selectOnly(item.id));
     });
     el.appendChild(plot);
-    return () => {
-      plot.remove();
-    };
+    return () => { plot.remove(); };
   }, [data, level]);
 
   return <div ref={ref} className="plot-container" />;

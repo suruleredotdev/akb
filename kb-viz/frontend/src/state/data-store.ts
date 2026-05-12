@@ -1,6 +1,31 @@
 import { createStore } from 'zustand/vanilla';
 import type { Manifest, Node, NodeId, Edge } from '../types/manifest';
 
+export function getDescendants(byParent: Map<NodeId, NodeId[]>, id: NodeId): Set<NodeId> {
+  const result = new Set<NodeId>();
+  const queue = [id];
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    for (const child of byParent.get(cur) ?? []) {
+      result.add(child);
+      queue.push(child);
+    }
+  }
+  return result;
+}
+
+export function getAncestors(nodes: Map<NodeId, Node>, id: NodeId): Node[] {
+  const result: Node[] = [];
+  let parentId = nodes.get(id)?.parent_id;
+  while (parentId) {
+    const parent = nodes.get(parentId);
+    if (!parent) break;
+    result.push(parent);
+    parentId = parent.parent_id ?? undefined;
+  }
+  return result;
+}
+
 export interface DataState {
   schemaId: string;
   manifest: Manifest | null;

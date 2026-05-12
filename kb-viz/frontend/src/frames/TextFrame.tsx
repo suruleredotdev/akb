@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { useStore } from '../lib/use-store';
-import { dataStore } from '../state/data-store';
+import { dataStore, getAncestors } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
+import { viewStore, type Level } from '../state/view-store';
 import {
   isEntityRef,
   isGeographic,
@@ -39,10 +40,9 @@ export function TextFrame() {
       <h3>{node.id}</h3>
       <div className="meta">
         type: <strong>{node.type}</strong>
-        {node.parent_id && <> · parent: {node.parent_id}</>}
-        {node.child_ids.length > 0 && <> · {node.child_ids.length} children</>}
         {node.annotations.length > 0 && <> · {node.annotations.length} annotations</>}
       </div>
+      <NodeNav node={node} nodesById={nodesById} />
       {node.text ? (
         <div className="body">{renderHighlighted(node)}</div>
       ) : (
@@ -50,6 +50,83 @@ export function TextFrame() {
       )}
       <PropertiesList node={node} />
       <AnnotationsList node={node} />
+    </div>
+  );
+}
+
+function NodeNav({ node, nodesById }: { node: Node; nodesById: Map<string, Node> }) {
+  const manifest = useStore(dataStore, (s) => s.manifest);
+
+  const ancestors = getAncestors(nodesById, node.id);
+  const children = node.child_ids
+    .map((id) => nodesById.get(id))
+    .filter((n): n is Node => n != null);
+
+  const nodeTypeDef = manifest?.node_types.find((t) => t.id === node.type);
+  const childTypeName = nodeTypeDef?.child_types[0] ?? 'child';
+
+  if (ancestors.length === 0 && children.length === 0) return null;
+
+  return (
+    <div className="node-nav">
+      {ancestors.length > 0 && (
+        <div className="nav-section">
+          <span className="nav-label">ancestors</span>
+          <div className="nav-chain">
+            {[...ancestors].reverse().map((anc, i) => (
+              <span key={anc.id} className="nav-chain-item">
+                {i > 0 && <span className="nav-sep">›</span>}
+                <button
+                  className="nav-link"
+                  onClick={() => {
+                    selectionStore.getState().selectOnly(anc.id);
+                    viewStore.getState().setLevel(anc.type as Level);
+                  }}
+                >
+                  <span className="type-badge">{anc.type}</span>
+                  {anc.id}
+                </button>
+              </span>
+            ))}
+            <span className="nav-sep">›</span>
+            <span className="nav-current">{node.id}</span>
+          </div>
+        </div>
+      )}
+      {children.length > 0 && (
+        <div className="nav-section">
+          <div className="nav-children-header">
+            <span className="nav-label">{children.length} {childTypeName}{children.length !== 1 ? 's' : ''}</span>
+            <button
+              className="drill-btn"
+              onClick={() => {
+                viewStore.getState().drillInto(node.id, childTypeName as Level);
+              }}
+            >
+              scope to these
+            </button>
+          </div>
+          <div className="child-list">
+            {children.slice(0, 6).map((child) => (
+              <button
+                key={child.id}
+                className="nav-link child-link"
+                onClick={() => {
+                  selectionStore.getState().selectOnly(child.id);
+                  viewStore.getState().setLevel(child.type as Level);
+                }}
+              >
+                {child.id}
+              </button>
+            ))}
+            {children.length > 6 && (
+              <span style={{ color: '#6b7280', fontSize: 11 }}>
+                +{children.length - 6} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -64,7 +141,7 @@ function renderHighlighted(node: Node): ReactNode {
   let cursor = 0;
   anns.forEach((a, i) => {
     const [s, e] = a.span;
-    if (s < cursor) return; // skip overlaps for MVP
+    if (s < cursor) return;
     if (s > cursor) parts.push(text.slice(cursor, s));
     parts.push(
       <span key={i} className={spanClass(a)} title={a.type}>
@@ -138,17 +215,9 @@ function AnnotationsList({ node }: { node: Node }) {
 
 function formatAnnotation(a: Annotation): string {
   const v = a.value;
-  if (isGeographic(v)) {
-    return `${v.name ?? '(unnamed)'} (${v.lat.toFixed(2)}, ${v.lng.toFixed(2)})`;
-  }
-  if (isTemporal(v)) {
-    return v.iso_end ? `${v.iso_start} → ${v.iso_end}` : v.iso_start;
-  }
-  if (isEntityRef(v)) {
-    return `${v.name ?? v.entity_id}${v.entity_type ? ` (${v.entity_type})` : ''}`;
-  }
-  if (isNumeric(v)) {
-    return `${v.value}${v.unit ? ' ' + v.unit : ''}`;
-  }
+  if (isGeographic(v)) return `${v.name ?? '(unnamed)'} (${v.lat.toFixed(2)}, ${v.lng.toFixed(2)})`;
+  if (isTemporal(v)) return v.iso_end ? `${v.iso_start} → ${v.iso_end}` : v.iso_start;
+  if (isEntityRef(v)) return `${v.name ?? v.entity_id}${v.entity_type ? ` (${v.entity_type})` : ''}`;
+  if (isNumeric(v)) return `${v.value}${v.unit ? ' ' + v.unit : ''}`;
   return JSON.stringify(v);
 }
