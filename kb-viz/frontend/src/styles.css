@@ -1,0 +1,178 @@
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #e5e7eb;
+  background: #0b0d10;
+}
+
+.app {
+  display: grid;
+  grid-template-rows: 56px 1fr;
+  height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  border-bottom: 1px solid #1f2937;
+  background: #111418;
+}
+.header h1 { margin: 0; font-size: 16px; font-weight: 600; }
+.header .spacer { flex: 1; }
+.header .stat { font-size: 12px; color: #9ca3af; }
+
+.main {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  height: 100%;
+  min-height: 0;
+}
+
+.frames {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1px;
+  background: #1f2937;
+  min-height: 0;
+}
+
+.frame {
+  background: #0b0d10;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+.frame-title {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #9ca3af;
+  z-index: 10;
+  pointer-events: none;
+  background: rgba(11, 13, 16, 0.8);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.frame-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #4b5563;
+  font-size: 12px;
+}
+
+.text-frame {
+  border-left: 1px solid #1f2937;
+  padding: 16px;
+  overflow-y: auto;
+  background: #0f1115;
+}
+.text-frame h3 { margin: 0 0 8px; font-size: 14px; font-family: ui-monospace, SFMono-Regular, monospace; }
+.text-frame .meta { font-size: 11px; color: #9ca3af; margin-bottom: 16px; }
+.text-frame .body {
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  padding: 12px;
+  background: #0b0d10;
+  border-radius: 4px;
+  border: 1px solid #1f2937;
+}
+.text-frame h4 { margin: 16px 0 6px; font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.span-geo { background: rgba(34, 197, 94, 0.3); border-radius: 2px; padding: 0 2px; }
+.span-time { background: rgba(99, 102, 241, 0.4); border-radius: 2px; padding: 0 2px; }
+.span-entity { background: rgba(245, 158, 11, 0.3); border-radius: 2px; padding: 0 2px; }
+
+.level-select {
+  background: #1f2937;
+  color: #e5e7eb;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.plot-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.maplibregl-canvas-container { height: 100%; }
+
+/* Scope pill in header */
+.scope-pill {
+  background: #1e3a5f;
+  color: #60a5fa;
+  border: 1px solid #1d4ed8;
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.scope-pill:hover { background: #1d4ed8; color: #fff; }
+
+/* Node navigation in TextFrame */
+.node-nav {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.nav-section { display: flex; flex-direction: column; gap: 4px; }
+.nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; }
+.nav-chain { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; font-size: 11px; }
+.nav-chain-item { display: flex; align-items: center; gap: 2px; }
+.nav-sep { color: #4b5563; }
+.nav-current { color: #e5e7eb; font-family: ui-monospace, monospace; font-size: 11px; }
+.nav-link {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  padding: 1px 4px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav-link:hover { background: #1e3a5f; }
+.type-badge {
+  font-size: 9px;
+  background: #1f2937;
+  color: #9ca3af;
+  border-radius: 3px;
+  padding: 1px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.nav-children-header { display: flex; align-items: center; gap: 8px; }
+.drill-btn {
+  background: #14532d;
+  color: #4ade80;
+  border: 1px solid #166534;
+  border-radius: 3px;
+  padding: 2px 7px;
+  font-size: 10px;
+  cursor: pointer;
+}
+.drill-btn:hover { background: #166534; }
+.child-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.child-link { font-size: 10px; }
