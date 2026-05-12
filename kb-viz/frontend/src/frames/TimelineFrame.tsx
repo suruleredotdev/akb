@@ -1,42 +1,46 @@
 import { useEffect, useMemo, useRef } from 'react';
 import * as Plot from '@observablehq/plot';
 import { useStore } from '../lib/use-store';
+import { useScopedIds } from '../lib/use-scoped-ids';
 import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
+import { makeColorEncoder, rgbaToHex } from '../lib/color-encoder';
 import { projectTimeline } from '../projection/projectors/timeline';
 
 interface Datum {
   id: string;
   date: Date;
-  type: string;
+  color: string;
   selected: boolean;
   jitter: number;
 }
 
 export function TimelineFrame() {
   const nodesById = useStore(dataStore, (s) => s.nodes);
-  const byType = useStore(dataStore, (s) => s.byType);
+  const nodeTypes = useStore(dataStore, (s) => s.manifest?.node_types ?? []);
   const level = useStore(viewStore, (s) => s.level);
+  const colorBy = useStore(viewStore, (s) => s.colorBy);
   const selected = useStore(selectionStore, (s) => s.selected);
+  const scopedIds = useScopedIds(level);
   const ref = useRef<HTMLDivElement>(null);
 
+  const encode = useMemo(
+    () => makeColorEncoder(nodesById, nodeTypes, colorBy),
+    [nodesById, nodeTypes, colorBy],
+  );
+
   const data = useMemo<Datum[]>(() => {
-    const ids = byType.get(level) ?? [];
-    const ns = ids.map((id) => nodesById.get(id)).filter((n): n is NonNullable<typeof n> => n != null);
+    const ns = scopedIds.map((id) => nodesById.get(id)).filter((n): n is NonNullable<typeof n> => n != null);
     const positions = projectTimeline(ns, nodesById);
-    return Array.from(positions.entries()).map(([id, p], i) => {
-      const node = nodesById.get(id);
-      return {
-        id,
-        date: new Date(p[0]),
-        type: node?.type ?? 'unknown',
-        selected: selected.has(id),
-        // Stable jitter from id hash so points don't jump on every render
-        jitter: hashId(id),
-      };
-    });
-  }, [nodesById, byType, level, selected]);
+    return Array.from(positions.entries()).map(([id, p]) => ({
+      id,
+      date: new Date(p[0]),
+      color: rgbaToHex(encode(id, selected.has(id))),
+      selected: selected.has(id),
+      jitter: hashId(id),
+    }));
+  }, [nodesById, scopedIds, encode, selected]);
 
   useEffect(() => {
     const el = ref.current;
@@ -65,28 +69,22 @@ export function TimelineFrame() {
         Plot.dot(data, {
           x: 'date',
           y: 'jitter',
-          // Plot accepts functions at runtime; types are incomplete
           r: ((d: Datum) => (d.selected ? 8 : 5)) as unknown as number,
-          fill: ((d: Datum) => (d.selected ? '#f05028' : '#a78bfa')) as unknown as string,
+          fill: 'color',
           stroke: 'white',
           strokeOpacity: 0.3,
           title: (d: Datum) => `${d.id}\n${d.date.toISOString().slice(0, 10)}`,
         }),
       ],
     });
-    // Plot doesn't natively expose click->datum; attach via DOM order which matches data order.
     plot.querySelectorAll('circle').forEach((circle, i) => {
       const item = data[i];
       if (!item) return;
       (circle as SVGElement).style.cursor = 'pointer';
-      circle.addEventListener('click', () =>
-        selectionStore.getState().selectOnly(item.id),
-      );
+      circle.addEventListener('click', () => selectionStore.getState().selectOnly(item.id));
     });
     el.appendChild(plot);
-    return () => {
-      plot.remove();
-    };
+    return () => { plot.remove(); };
   }, [data, level]);
 
   return <div ref={ref} className="plot-container" />;
