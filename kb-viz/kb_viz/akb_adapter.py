@@ -63,16 +63,16 @@ class AkbColumnMap:
     blocks_table: str = "blocks"
     block_id: str = "id"
     block_title: str = "title"
-    block_source: str = "source"  # URL or file path
+    block_source: str = "source_url"  # URL or file path
     block_ingested_at: str = "ingested_at"
-    block_text: str = "text"  # full document text, optional
+    block_text: str = "text"  # full document text, optional (not stored in akb)
 
     # chunks (text segments with embeddings)
     chunks_table: str = "chunks"
     chunk_id: str = "id"
     chunk_block_id: str = "block_id"
     chunk_text: str = "text"
-    chunk_index: str = "chunk_index"  # ordinal within block
+    chunk_index: str = "position"  # ordinal within block
     chunk_embedding: str = "embedding"  # BLOB or sqlite-vec vector
     chunk_prev_id: str = "prev_chunk_id"
     chunk_next_id: str = "next_chunk_id"
@@ -83,23 +83,22 @@ class AkbColumnMap:
     spans_table: str = "ner_spans"
     span_id: str = "id"
     span_chunk_id: str = "chunk_id"
-    span_type: str = "type"  # LOC | TIME | PERSON | ORG | KEYWORD
-    span_text: str = "text"
+    span_type: str = "span_type"  # LOC | TIME | PERSON | ORG | KEYWORD
+    span_text: str = "raw_text"
     span_start: str = "start_offset"
     span_end: str = "end_offset"
-    span_confidence: str = "confidence"
+    span_confidence: str = "geo_confidence"
     # geo resolution (LOC)
     span_lat: str = "lat"
-    span_lng: str = "lng"
-    span_geo_name: str = "resolved_name"
-    span_geo_accuracy_m: str = "geo_accuracy_m"
+    span_lng: str = "lon"
+    span_geo_name: str = "normalized_value"
+    span_geo_accuracy_m: str = "geo_confidence"
     # chrono resolution (TIME)
     span_iso_start: str = "iso_start"
     span_iso_end: str = "iso_end"
-    span_granularity: str = "granularity"
     # entity resolution (PERSON / ORG / KEYWORD)
-    span_entity_id: str = "entity_id"
-    span_entity_name: str = "resolved_name"
+    span_entity_id: str = "id"
+    span_entity_name: str = "normalized_value"
 
     # processing_runs (provenance)
     runs_table: str = "processing_runs"
@@ -152,6 +151,17 @@ _GEO_TYPES = {"LOC", "GPE", "FAC"}
 _TIME_TYPES = {"TIME", "DATE"}
 
 
+def _infer_granularity(iso: str) -> str:
+    # e.g. "2024" -> year, "2024-05" -> month, "2024-05-11" -> day, "2024-05-11T10:00" -> hour
+    clean = iso.lstrip("T").split("T")[0]  # strip leading T (TIMEX) and time part
+    parts = clean.split("-")
+    if len(parts) >= 3:
+        return "day"
+    if len(parts) == 2:
+        return "month"
+    return "year"
+
+
 def _row(row: sqlite3.Row, key: str, default: Any = None) -> Any:
     """Safely read a column from a sqlite3.Row, returning default if missing."""
     try:
@@ -201,7 +211,7 @@ def span_to_annotation(row: sqlite3.Row, cols: AkbColumnMap) -> Annotation | Non
         value = TemporalValue(
             iso_start=str(iso_start),
             iso_end=_row(row, cols.span_iso_end),
-            granularity=_row(row, cols.span_granularity, "day"),
+            granularity=_infer_granularity(str(iso_start)),
             raw=_row(row, cols.span_text),
         )
         return Annotation(

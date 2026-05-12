@@ -1,0 +1,9 @@
+[build]
+  base    = "kb-viz/frontend"
+  command = "npm ci && npm run build"
+  publish = "dist"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "no-cache"

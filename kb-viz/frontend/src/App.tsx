@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { dataStore } from './state/data-store';
 import { selectionStore } from './state/selection-store';
+import { viewStore } from './state/view-store';
 import { useStore } from './lib/use-store';
 import { loadManifest } from './lib/load-manifest';
 import { LevelSelector } from './components/LevelSelector';
+import { ColorBySelector } from './components/ColorBySelector';
 import { SemanticFrame } from './frames/SemanticFrame';
 import { MapFrame } from './frames/MapFrame';
 import { TimelineFrame } from './frames/TimelineFrame';
@@ -14,6 +16,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const manifest = useStore(dataStore, (s) => s.manifest);
   const nodeCount = useStore(dataStore, (s) => s.nodes.size);
+  const scope = useStore(viewStore, (s) => s.scope);
 
   useEffect(() => {
     loadManifest('/manifest.json')
@@ -23,7 +26,10 @@ export function App() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') selectionStore.getState().clear();
+      if (e.key === 'Escape') {
+        selectionStore.getState().clear();
+        viewStore.getState().drillOut();
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -52,6 +58,12 @@ export function App() {
       <header className="header">
         <h1>kb-viz</h1>
         <LevelSelector />
+        <ColorBySelector />
+        {scope !== 'global' && (
+          <button className="scope-pill" onClick={() => viewStore.getState().drillOut()}>
+            ↑ exit scope
+          </button>
+        )}
         <span className="stat">
           {nodeCount} nodes · {manifest.label ?? manifest.schema_id}
         </span>

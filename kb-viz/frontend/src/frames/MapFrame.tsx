@@ -3,28 +3,36 @@ import DeckGL from '@deck.gl/react';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { Map } from 'react-map-gl/maplibre';
 import { useStore } from '../lib/use-store';
+import { useScopedIds } from '../lib/use-scoped-ids';
 import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
+import { makeColorEncoder } from '../lib/color-encoder';
 import { projectMap } from '../projection/projectors/map';
 
 interface Point { id: string; position: [number, number]; }
 
 export function MapFrame() {
   const nodesById = useStore(dataStore, (s) => s.nodes);
-  const byType = useStore(dataStore, (s) => s.byType);
+  const nodeTypes = useStore(dataStore, (s) => s.manifest?.node_types ?? []);
   const level = useStore(viewStore, (s) => s.level);
+  const colorBy = useStore(viewStore, (s) => s.colorBy);
   const selected = useStore(selectionStore, (s) => s.selected);
+  const scopedIds = useScopedIds(level);
+
+  const encode = useMemo(
+    () => makeColorEncoder(nodesById, nodeTypes, colorBy),
+    [nodesById, nodeTypes, colorBy],
+  );
 
   const points = useMemo<Point[]>(() => {
-    const ids = byType.get(level) ?? [];
-    const ns = ids.map((id) => nodesById.get(id)).filter((n): n is NonNullable<typeof n> => n != null);
+    const ns = scopedIds.map((id) => nodesById.get(id)).filter((n): n is NonNullable<typeof n> => n != null);
     const positions = projectMap(ns, nodesById);
     return Array.from(positions.entries()).map(([id, p]) => ({
       id,
       position: [p[0], p[1]] as [number, number],
     }));
-  }, [nodesById, byType, level]);
+  }, [nodesById, scopedIds]);
 
   const initialViewState = useMemo(() => {
     if (points.length === 0) return { longitude: 0, latitude: 20, zoom: 1 };
@@ -45,12 +53,12 @@ export function MapFrame() {
         new ScatterplotLayer<Point>({
           id: 'map-points',
           data: points,
-          getPosition: (d) => [d.position[0], d.position[1]],
+          getPosition: (d) => d.position,
           getRadius: (d) => (selected.has(d.id) ? 11 : 7),
-          getFillColor: (d) => (selected.has(d.id) ? [240, 80, 40] : [34, 197, 94]),
+          getFillColor: (d) => encode(d.id, selected.has(d.id)),
           radiusUnits: 'pixels',
           stroked: true,
-          getLineColor: [255, 255, 255, 120],
+          getLineColor: [255, 255, 255, 100],
           lineWidthUnits: 'pixels',
           lineWidthMinPixels: 1,
           pickable: true,
@@ -64,7 +72,7 @@ export function MapFrame() {
           },
           updateTriggers: {
             getRadius: [selected],
-            getFillColor: [selected],
+            getFillColor: [selected, colorBy, nodesById],
           },
         }),
       ]}
