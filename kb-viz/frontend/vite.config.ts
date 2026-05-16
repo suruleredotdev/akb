@@ -3,7 +3,17 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  base: './',
   server: {
     port: 5173,
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    coverage: {
+      provider: 'v8',
+      include: ['src/state/**', 'src/projection/**', 'src/lib/**'],
+      reporter: ['text', 'lcov'],
+    },
   },
 });
