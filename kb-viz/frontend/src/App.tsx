@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { dataStore } from './state/data-store';
 import { selectionStore } from './state/selection-store';
 import { viewStore } from './state/view-store';
@@ -13,12 +13,11 @@ import type { FrameType } from './state/layout-store';
 // Register all frames with the registry
 import './frames/index';
 
-const PRESET_LABELS: [string, string][] = [
-  ['4-panel', '4-panel'],
-  ['map-focus', 'map focus'],
-  ['text-focus', 'text focus'],
-  ['single', 'single'],
-];
+const BUILTIN_PRESETS = ['4-panel', 'map-focus', 'text-focus', 'single'];
+const BUILTIN_LABELS: Record<string, string> = {
+  '4-panel': '4-panel', 'map-focus': 'map focus',
+  'text-focus': 'text focus', 'single': 'single',
+};
 
 export function App() {
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +71,7 @@ export function App() {
             ↑ exit scope
           </button>
         )}
-        <PresetPicker />
+        <LayoutMenu />
         <AddFrameButton />
         <span className="spacer" />
         <span className="stat">{nodeCount} nodes · {manifest.label ?? manifest.schema_id}</span>
@@ -85,23 +84,71 @@ export function App() {
   );
 }
 
-function PresetPicker() {
+function LayoutMenu() {
+  const presets = useStore(layoutStore, (s) => s.presets);
+  const [saving, setSaving] = useState(false);
+  const [name, setName] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const userPresets = Object.keys(presets).filter((k) => !BUILTIN_PRESETS.includes(k));
+
+  if (saving) {
+    return (
+      <form
+        style={{ display: 'flex', gap: 4 }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const trimmed = name.trim();
+          if (trimmed) layoutStore.getState().savePreset(trimmed);
+          setSaving(false);
+          setName('');
+        }}
+      >
+        <input
+          ref={inputRef}
+          autoFocus
+          className="ctrl-select"
+          placeholder="preset name…"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={{ width: 110 }}
+        />
+        <button type="submit" className="btn-primary">save</button>
+        <button type="button" className="btn-ghost" onClick={() => setSaving(false)}>✕</button>
+      </form>
+    );
+  }
+
   return (
-    <select
-      className="ctrl-select"
-      defaultValue=""
-      onChange={(e) => {
-        if (e.target.value) {
-          layoutStore.getState().loadPreset(e.target.value);
-          e.target.value = '';
-        }
-      }}
-    >
-      <option value="" disabled>layout…</option>
-      {PRESET_LABELS.map(([value, label]) => (
-        <option key={value} value={value}>{label}</option>
-      ))}
-    </select>
+    <div style={{ display: 'flex', gap: 4 }}>
+      <select
+        className="ctrl-select"
+        defaultValue=""
+        onChange={(e) => {
+          if (e.target.value) {
+            layoutStore.getState().loadPreset(e.target.value);
+            e.target.value = '';
+          }
+        }}
+      >
+        <option value="" disabled>layout…</option>
+        <optgroup label="built-in">
+          {BUILTIN_PRESETS.map((k) => (
+            <option key={k} value={k}>{BUILTIN_LABELS[k]}</option>
+          ))}
+        </optgroup>
+        {userPresets.length > 0 && (
+          <optgroup label="saved">
+            {userPresets.map((k) => (
+              <option key={k} value={k}>{k}</option>
+            ))}
+          </optgroup>
+        )}
+      </select>
+      <button className="btn-ghost" title="Save current layout" onClick={() => setSaving(true)}>
+        💾
+      </button>
+    </div>
   );
 }
 
