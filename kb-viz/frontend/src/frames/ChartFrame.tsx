@@ -1,102 +1,165 @@
-import { useEffect, useMemo, useRef } from 'react';
-import * as Plot from '@observablehq/plot';
+import { useMemo, useCallback } from 'react';
+import DeckGL from '@deck.gl/react';
+import { ScatterplotLayer, LineLayer, TextLayer } from '@deck.gl/layers';
+import { OrthographicView } from '@deck.gl/core';
 import { useStore } from '../lib/use-store';
 import { useScopedIds } from '../lib/use-scoped-ids';
 import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
-import { makeColorEncoder, rgbaToHex } from '../lib/color-encoder';
+import { makeColorEncoder } from '../lib/color-encoder';
 import { getScalar } from '../types/manifest';
+import type { FrameProps } from './registry';
 
-interface Datum {
-  id: string;
-  x: number;
-  y: number;
-  color: string;
-  selected: boolean;
+interface Point { id: string; x: number; y: number; }
+
+function niceLinear(min: number, max: number, count = 5): number[] {
+  const range = max - min || 1;
+  const step = Math.pow(10, Math.floor(Math.log10(range / count)));
+  const nice = [1, 2, 5, 10].find((m) => (range / (step * m)) <= count) ?? 10;
+  const s = step * nice;
+  const ticks: number[] = [];
+  for (let v = Math.ceil(min / s) * s; v <= max + s * 0.001; v += s) ticks.push(parseFloat(v.toPrecision(10)));
+  return ticks;
 }
 
-import type { FrameProps } from './registry';
-export function ChartFrame({ width, height }: FrameProps) {
+export function ChartFrame({ width: _w, height: _h }: FrameProps) {
   const nodesById = useStore(dataStore, (s) => s.nodes);
   const nodeTypes = useStore(dataStore, (s) => s.manifest?.node_types ?? []);
-  const level = useStore(viewStore, (s) => s.level);
-  const colorBy = useStore(viewStore, (s) => s.colorBy);
-  const selected = useStore(selectionStore, (s) => s.selected);
+  const level     = useStore(viewStore, (s) => s.level);
+  const colorBy   = useStore(viewStore, (s) => s.colorBy);
+  const selected  = useStore(selectionStore, (s) => s.selected);
+  const hovered   = useStore(selectionStore, (s) => s.hovered);
   const scopedIds = useScopedIds(level);
-  const ref = useRef<HTMLDivElement>(null);
 
   const encode = useMemo(
     () => makeColorEncoder(nodesById, nodeTypes, colorBy),
     [nodesById, nodeTypes, colorBy],
   );
 
-  const data = useMemo<Datum[]>(() => {
-    const out: Datum[] = [];
+  const points = useMemo<Point[]>(() => {
+    const out: Point[] = [];
     for (const id of scopedIds) {
       const n = nodesById.get(id);
       if (!n) continue;
       const x = getScalar(n, 'position') ?? getScalar(n, 'chunk_index');
       const y = getScalar(n, 'length') ?? getScalar(n, 'chunk_count');
-      if (x !== undefined && y !== undefined) {
-        out.push({
-          id,
-          x,
-          y,
-          color: rgbaToHex(encode(id, selected.has(id))),
-          selected: selected.has(id),
-        });
-      }
+      if (x !== undefined && y !== undefined) out.push({ id, x, y });
     }
     return out;
-  }, [nodesById, scopedIds, encode, selected]);
+  }, [nodesById, scopedIds]);
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.innerHTML = '';
-    if (data.length === 0) {
-      const div = document.createElement('div');
-      div.className = 'frame-empty';
-      div.textContent = `No length/position data at level "${level}"`;
-      el.appendChild(div);
-      return;
-    }
-    const w = width || el.clientWidth;
-    const h = height || el.clientHeight;
-    const allY = data.map((d) => d.y).filter((y) => y > 0);
-    const useLog = allY.length > 0 && Math.max(...allY) / Math.max(Math.min(...allY), 1) > 10;
-    const plot = Plot.plot({
-      style: { background: 'transparent', color: '#e5e7eb', fontSize: '11px' },
-      width: w,
-      height: h,
-      marginTop: 36,
-      marginBottom: 36,
-      marginLeft: 48,
-      marginRight: 16,
-      x: { label: 'position →', grid: true },
-      y: { label: '↑ length', grid: true, type: useLog ? 'log' : 'linear' },
-      marks: [
-        Plot.dot(data, {
-          x: 'x',
-          y: 'y',
-          r: ((d: Datum) => (d.selected ? 8 : 5)) as unknown as number,
-          fill: 'color',
-          stroke: 'white',
-          strokeOpacity: 0.3,
-          title: (d: Datum) => `${d.id}\nposition=${d.x.toFixed(2)} length=${d.y}`,
+  const { minX, maxX, minY, maxY } = useMemo(() => {
+    if (points.length === 0) return { minX: 0, maxX: 1, minY: 0, maxY: 1 };
+    const xs = points.map((p) => p.x);
+    const ys = points.map((p) => p.y);
+    return {
+      minX: Math.min(...xs), maxX: Math.max(...xs),
+      minY: Math.min(...ys), maxY: Math.max(...ys),
+    };
+  }, [points]);
+
+  const padX = (maxX - minX) * 0.08 || 1;
+  const padY = (maxY - minY) * 0.12 || 1;
+
+  const viewState = useMemo(() => ({
+    target: [(minX + maxX) / 2, (minY + maxY) / 2, 0] as [number, number, number],
+    zoom: Math.log2(Math.min(_w || 800, _h || 600) / Math.max(maxX - minX + padX * 2, maxY - minY + padY * 2, 1)) - 0.5,
+  }), [minX, maxX, minY, maxY, padX, padY, _w, _h]);
+
+  const xTicks = useMemo(() => niceLinear(minX, maxX), [minX, maxX]);
+  const yTicks = useMemo(() => niceLinear(minY, maxY), [minY, maxY]);
+
+  const getColor = useCallback((d: Point): [number, number, number, number] => {
+    if (selected.has(d.id)) return [240, 80, 40, 255];
+    if (hovered === d.id)   return [251, 191, 36, 255];
+    const [r, g, b, a] = encode(d.id, false);
+    return [r, g, b, selected.size > 0 ? 51 : a];
+  }, [selected, hovered, encode]);
+
+  if (points.length === 0) {
+    return <div className="frame-empty">No length/position data at level "{level}"</div>;
+  }
+
+  const axisColor: [number, number, number, number] = [64, 68, 96, 255];
+  const labelColor: [number, number, number, number] = [100, 116, 139, 255];
+
+  return (
+    <DeckGL
+      views={new OrthographicView({ id: 'chart' })}
+      initialViewState={viewState}
+      controller
+      layers={[
+        // X axis
+        new LineLayer({
+          id: 'x-axis',
+          data: [{ s: [minX - padX, minY - padY, 0], t: [maxX + padX, minY - padY, 0] }],
+          getSourcePosition: (d: { s: number[]; t: number[] }) => d.s as [number, number, number],
+          getTargetPosition: (d: { s: number[]; t: number[] }) => d.t as [number, number, number],
+          getColor: axisColor,
+          getWidth: 1,
+          widthUnits: 'pixels',
         }),
-      ],
-    });
-    plot.querySelectorAll('circle').forEach((circle, i) => {
-      const item = data[i];
-      if (!item) return;
-      (circle as SVGElement).style.cursor = 'pointer';
-      circle.addEventListener('click', () => selectionStore.getState().selectOnly(item.id));
-    });
-    el.appendChild(plot);
-    return () => { plot.remove(); };
-  }, [data, level]);
-
-  return <div ref={ref} className="plot-container" />;
+        // Y axis
+        new LineLayer({
+          id: 'y-axis',
+          data: [{ s: [minX - padX, minY - padY, 0], t: [minX - padX, maxY + padY, 0] }],
+          getSourcePosition: (d: { s: number[]; t: number[] }) => d.s as [number, number, number],
+          getTargetPosition: (d: { s: number[]; t: number[] }) => d.t as [number, number, number],
+          getColor: axisColor,
+          getWidth: 1,
+          widthUnits: 'pixels',
+        }),
+        // X tick labels
+        new TextLayer({
+          id: 'x-ticks',
+          data: xTicks,
+          getText: (v: number) => String(v),
+          getPosition: (v: number) => [v, minY - padY * 0.6, 0],
+          getSize: 10,
+          getColor: labelColor,
+          getTextAnchor: 'middle',
+          getAlignmentBaseline: 'top',
+          fontFamily: 'ui-monospace, monospace',
+        }),
+        // Y tick labels
+        new TextLayer({
+          id: 'y-ticks',
+          data: yTicks,
+          getText: (v: number) => String(v),
+          getPosition: (v: number) => [minX - padX * 0.6, v, 0],
+          getSize: 10,
+          getColor: labelColor,
+          getTextAnchor: 'end',
+          getAlignmentBaseline: 'center',
+          fontFamily: 'ui-monospace, monospace',
+        }),
+        new ScatterplotLayer<Point>({
+          id: 'chart-points',
+          data: points,
+          getPosition: (d) => [d.x, d.y, 0],
+          getRadius: (d) => (selected.has(d.id) ? 7 : hovered === d.id ? 6 : 4),
+          getFillColor: getColor,
+          radiusUnits: 'pixels',
+          stroked: true,
+          getLineColor: [255, 255, 255, 40],
+          lineWidthUnits: 'pixels',
+          lineWidthMinPixels: 1,
+          pickable: true,
+          onClick: (info) => {
+            const id = (info.object as Point | undefined)?.id;
+            if (id) selectionStore.getState().selectOnly(id);
+          },
+          onHover: (info) => {
+            selectionStore.getState().hover((info.object as Point | undefined)?.id ?? null);
+          },
+          updateTriggers: {
+            getFillColor: [selected, hovered, colorBy, nodesById],
+            getRadius: [selected, hovered],
+          },
+          transitions: { getFillColor: 120 },
+        }),
+      ]}
+    />
+  );
 }
