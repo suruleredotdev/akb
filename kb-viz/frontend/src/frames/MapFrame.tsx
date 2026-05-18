@@ -10,9 +10,11 @@ import { viewStore } from '../state/view-store';
 import { makeColorEncoder } from '../lib/color-encoder';
 import { projectMap } from '../projection/projectors/map';
 
+import type { FrameProps } from './registry';
+
 interface Point { id: string; position: [number, number]; }
 
-export function MapFrame() {
+export function MapFrame(_props: FrameProps) {
   const nodesById = useStore(dataStore, (s) => s.nodes);
   const nodeTypes = useStore(dataStore, (s) => s.manifest?.node_types ?? []);
   const level = useStore(viewStore, (s) => s.level);
