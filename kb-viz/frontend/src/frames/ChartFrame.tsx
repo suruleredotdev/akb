@@ -16,7 +16,8 @@ interface Datum {
   selected: boolean;
 }
 
-export function ChartFrame() {
+import type { FrameProps } from './registry';
+export function ChartFrame({ width, height }: FrameProps) {
   const nodesById = useStore(dataStore, (s) => s.nodes);
   const nodeTypes = useStore(dataStore, (s) => s.manifest?.node_types ?? []);
   const level = useStore(viewStore, (s) => s.level);
@@ -61,14 +62,14 @@ export function ChartFrame() {
       el.appendChild(div);
       return;
     }
-    const width = el.clientWidth;
-    const height = el.clientHeight;
+    const w = width || el.clientWidth;
+    const h = height || el.clientHeight;
     const allY = data.map((d) => d.y).filter((y) => y > 0);
     const useLog = allY.length > 0 && Math.max(...allY) / Math.max(Math.min(...allY), 1) > 10;
     const plot = Plot.plot({
       style: { background: 'transparent', color: '#e5e7eb', fontSize: '11px' },
-      width,
-      height,
+      width: w,
+      height: h,
       marginTop: 36,
       marginBottom: 36,
       marginLeft: 48,

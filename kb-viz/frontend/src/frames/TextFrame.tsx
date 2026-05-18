@@ -13,7 +13,8 @@ import {
   type PropertyValue,
 } from '../types/manifest';
 
-export function TextFrame() {
+import type { FrameProps } from './registry';
+export function TextFrame(_props: FrameProps) {
   const nodesById = useStore(dataStore, (s) => s.nodes);
   const focused = useStore(selectionStore, (s) => s.focused);
 

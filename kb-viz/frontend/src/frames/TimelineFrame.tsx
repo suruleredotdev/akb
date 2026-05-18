@@ -16,7 +16,8 @@ interface Datum {
   jitter: number;
 }
 
-export function TimelineFrame() {
+import type { FrameProps } from './registry';
+export function TimelineFrame({ width, height }: FrameProps) {
   const nodesById = useStore(dataStore, (s) => s.nodes);
   const nodeTypes = useStore(dataStore, (s) => s.manifest?.node_types ?? []);
   const level = useStore(viewStore, (s) => s.level);
@@ -53,12 +54,12 @@ export function TimelineFrame() {
       el.appendChild(div);
       return;
     }
-    const width = el.clientWidth;
-    const height = el.clientHeight;
+    const w = width || el.clientWidth;
+    const h = height || el.clientHeight;
     const plot = Plot.plot({
       style: { background: 'transparent', color: '#e5e7eb', fontSize: '11px' },
-      width,
-      height,
+      width: w,
+      height: h,
       marginTop: 36,
       marginBottom: 32,
       marginLeft: 16,

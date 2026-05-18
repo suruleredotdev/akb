@@ -6,11 +6,19 @@ import { useStore } from './lib/use-store';
 import { loadManifest } from './lib/load-manifest';
 import { LevelSelector } from './components/LevelSelector';
 import { ColorBySelector } from './components/ColorBySelector';
-import { SemanticFrame } from './frames/SemanticFrame';
-import { MapFrame } from './frames/MapFrame';
-import { TimelineFrame } from './frames/TimelineFrame';
-import { ChartFrame } from './frames/ChartFrame';
-import { TextFrame } from './frames/TextFrame';
+import { AppShell } from './components/AppShell';
+import { layoutStore } from './state/layout-store';
+import type { FrameType } from './state/layout-store';
+
+// Register all frames with the registry
+import './frames/index';
+
+const PRESET_LABELS: [string, string][] = [
+  ['4-panel', '4-panel'],
+  ['map-focus', 'map focus'],
+  ['text-focus', 'text focus'],
+  ['single', 'single'],
+];
 
 export function App() {
   const [error, setError] = useState<string | null>(null);
@@ -37,9 +45,9 @@ export function App() {
 
   if (error) {
     return (
-      <div style={{ padding: 32, color: '#f05028' }}>
+      <div style={{ padding: 32, color: 'var(--selected)' }}>
         <strong>Error:</strong> {error}
-        <p style={{ marginTop: 16, color: '#9ca3af', fontSize: 13 }}>
+        <p style={{ marginTop: 16, color: 'var(--text-dim)', fontSize: 13 }}>
           Make sure <code>public/manifest.json</code> exists. Generate one with:
           <br />
           <code style={{ display: 'block', marginTop: 8 }}>
@@ -50,7 +58,7 @@ export function App() {
     );
   }
   if (!manifest) {
-    return <div style={{ padding: 32 }}>Loading manifest…</div>;
+    return <div style={{ padding: 32, color: 'var(--text-dim)' }}>Loading manifest…</div>;
   }
 
   return (
@@ -64,33 +72,59 @@ export function App() {
             ↑ exit scope
           </button>
         )}
-        <span className="stat">
-          {nodeCount} nodes · {manifest.label ?? manifest.schema_id}
-        </span>
+        <PresetPicker />
+        <AddFrameButton />
         <span className="spacer" />
-        <span className="stat">esc clears selection</span>
+        <span className="stat">{nodeCount} nodes · {manifest.label ?? manifest.schema_id}</span>
+        <span className="stat" style={{ color: 'var(--text-muted)' }}>esc clears</span>
       </header>
-      <main className="main">
-        <div className="frames">
-          <div className="frame">
-            <div className="frame-title">Semantic</div>
-            <SemanticFrame />
-          </div>
-          <div className="frame">
-            <div className="frame-title">Map</div>
-            <MapFrame />
-          </div>
-          <div className="frame">
-            <div className="frame-title">Timeline</div>
-            <TimelineFrame />
-          </div>
-          <div className="frame">
-            <div className="frame-title">Length × Position</div>
-            <ChartFrame />
-          </div>
-        </div>
-        <TextFrame />
+      <main style={{ height: 'calc(100vh - 48px)', overflow: 'hidden' }}>
+        <AppShell />
       </main>
     </div>
+  );
+}
+
+function PresetPicker() {
+  return (
+    <select
+      className="ctrl-select"
+      defaultValue=""
+      onChange={(e) => {
+        if (e.target.value) {
+          layoutStore.getState().loadPreset(e.target.value);
+          e.target.value = '';
+        }
+      }}
+    >
+      <option value="" disabled>layout…</option>
+      {PRESET_LABELS.map(([value, label]) => (
+        <option key={value} value={value}>{label}</option>
+      ))}
+    </select>
+  );
+}
+
+const ADDABLE_FRAMES: FrameType[] = ['semantic', 'map', 'timeline', 'chart', 'text'];
+
+function AddFrameButton() {
+  return (
+    <select
+      className="ctrl-select"
+      defaultValue=""
+      onChange={(e) => {
+        const type = e.target.value as FrameType;
+        if (!type) return;
+        // Split root horizontally, adding new frame as the second pane
+        const root = layoutStore.getState().root;
+        layoutStore.getState().setRoot({ direction: 'row', first: root, second: type, splitPercentage: 70 });
+        e.target.value = '';
+      }}
+    >
+      <option value="" disabled>+ frame</option>
+      {ADDABLE_FRAMES.map((f) => (
+        <option key={f} value={f}>{f}</option>
+      ))}
+    </select>
   );
 }
