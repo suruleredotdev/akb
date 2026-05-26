@@ -1,16 +1,18 @@
-/* ── Design tokens (surulere.dev / Archive3d) ─────────────────────────────── */
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --bg:           #0f1117;
-  --surface:      #1a1d27;
-  --surface-2:    rgba(26,29,39,0.8);
-  --border:       #2a2d3a;
-  --border-light: #363a4a;
-  --text:         #e2e8f0;
-  --text-dim:     #64748b;
-  --text-muted:   #3d4460;
-  --accent:       #6366f1;
-  --accent-dim:   rgba(99,102,241,0.12);
-  --accent-hover: #4f46e5;
+  --bg:           #0E160C;
+  --surface:      #141e11;
+  --surface-2:    rgba(14,22,12,0.85);
+  --border:       #3F493D;
+  --border-light: #4a5548;
+  --border-width: 0.5px;
+  --text:         #A3A8A2;
+  --text-dim:     #535e52;
+  --text-muted:   #3F493D;
+  --title-color:  #3F493D;
+  --accent:       #2ca7ad;
+  --accent-dim:   rgba(44,167,173,0.12);
+  --accent-hover: #259298;
   --selected:     #f05028;
   --hovered:      #fbbf24;
   /* Annotation type colors */
@@ -54,7 +56,7 @@ body {
   align-items: center;
   gap: 12px;
   padding: 0 14px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--border-width) solid var(--border);
   background: var(--surface);
   z-index: 100;
 }
@@ -98,7 +100,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: var(--text-dim);
+  color: var(--title-color);
   z-index: 10;
   pointer-events: none;
   background: var(--surface-2);
@@ -120,7 +122,7 @@ body {
 .ctrl-select {
   background: var(--bg);
   color: var(--text);
-  border: 1px solid var(--border);
+  border: var(--border-width) solid var(--border);
   border-radius: var(--radius-sm);
   padding: 4px 8px;
   font-size: 12px;
@@ -136,7 +138,7 @@ body {
 .btn {
   background: var(--bg);
   color: var(--text-dim);
-  border: 1px solid var(--border);
+  border: var(--border-width) solid var(--border);
   border-radius: var(--radius-sm);
   padding: 4px 10px;
   font-size: 12px;
@@ -171,7 +173,7 @@ body {
 .scope-pill {
   background: var(--accent-dim);
   color: var(--accent);
-  border: 1px solid var(--accent);
+  border: var(--border-width) solid var(--accent);
   border-radius: 12px;
   padding: 3px 10px;
   font-size: 11px;
@@ -182,7 +184,7 @@ body {
 
 /* ── Text frame ───────────────────────────────────────────────────────────── */
 .text-frame {
-  border-left: 1px solid var(--border);
+  border-left: var(--border-width) solid var(--border);
   padding: 14px;
   overflow-y: auto;
   background: var(--surface);
@@ -208,13 +210,13 @@ body {
   padding: 12px;
   background: var(--bg);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
+  border: var(--border-width) solid var(--border);
   color: var(--text);
 }
 .text-frame h4 {
   margin: 14px 0 5px;
   font-size: 10px;
-  color: var(--text-dim);
+  color: var(--title-color);
   text-transform: uppercase;
   letter-spacing: 0.6px;
   font-weight: 600;
@@ -249,7 +251,7 @@ body {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-muted);
+  color: var(--title-color);
   font-weight: 600;
 }
 .nav-chain { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; font-size: 11px; }
@@ -274,7 +276,7 @@ body {
   font-size: 9px;
   background: var(--surface);
   color: var(--text-dim);
-  border: 1px solid var(--border);
+  border: var(--border-width) solid var(--border);
   border-radius: 3px;
   padding: 1px 4px;
   text-transform: uppercase;
@@ -284,7 +286,7 @@ body {
 .drill-btn {
   background: var(--time-bg);
   color: var(--time);
-  border: 1px solid #166534;
+  border: var(--border-width) solid #166534;
   border-radius: var(--radius-sm);
   padding: 2px 7px;
   font-size: 10px;
@@ -305,7 +307,7 @@ body {
   z-index: 9999;
   pointer-events: none;
   background: var(--surface);
-  border: 1px solid var(--border-light);
+  border: var(--border-width) solid var(--border-light);
   border-radius: var(--radius-lg);
   padding: 8px 10px;
   min-width: 180px;
@@ -333,7 +335,7 @@ body {
 }
 .node-tooltip .tt-badges { display: flex; gap: 4px; flex-wrap: wrap; }
 
-/* ── Mosaic overrides (AppShell, M2) ──────────────────────────────────────── */
+/* ── Mosaic overrides ─────────────────────────────────────────────────────── */
 .mosaic-root { background: var(--border) !important; }
 .mosaic-tile { background: var(--bg) !important; }
 .mosaic-split { background: var(--border) !important; }
@@ -341,7 +343,7 @@ body {
 .mosaic-window { background: var(--bg) !important; border: none !important; }
 .mosaic-window-toolbar {
   background: var(--surface) !important;
-  border-bottom: 1px solid var(--border) !important;
+  border-bottom: var(--border-width) solid var(--border) !important;
   height: 34px !important;
   padding: 0 8px !important;
 }
@@ -350,7 +352,7 @@ body {
   font-weight: 600 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.6px !important;
-  color: var(--text-dim) !important;
+  color: var(--title-color) !important;
 }
 .mosaic-window-controls .mosaic-default-control { color: var(--text-dim) !important; }
 .mosaic-window-controls .mosaic-default-control:hover {
