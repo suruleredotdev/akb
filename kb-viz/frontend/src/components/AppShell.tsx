@@ -67,6 +67,13 @@ function FrameControls({ type }: { type: FrameType }) {
       >
         ⤢
       </button>
+      <button
+        className="btn-ghost"
+        title="Close frame"
+        onClick={() => layoutStore.getState().removeFrame(type)}
+      >
+        ✕
+      </button>
     </div>
   );
 }
