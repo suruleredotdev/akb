@@ -148,6 +148,36 @@ ner_spans     — LOC, TIME, PERSON, ORG, KEYWORD with geo/chrono resolution
 processing_runs — provenance: model + config used for each processing step
 ```
 
+## kb-viz — interactive visualizer
+
+`kb-viz/` is a full-stack visualizer for the akb corpus. The Python adapter
+(`kb_viz/akb_adapter.py`) converts an akb SQLite database into a manifest JSON
+that the React frontend reads.
+
+```bash
+# Generate manifest from your database
+python -m kb_viz.akb_adapter data/archive.db -o kb-viz/frontend/public/manifest.json
+
+# Start the visualizer
+cd kb-viz/frontend && npm install && npm run dev
+# → http://localhost:5173
+```
+
+### Frames
+
+| Frame | What you see |
+|---|---|
+| **Semantic** | UMAP embedding cloud. Toggle 2D / 3D (drag-rotatable OrbitView). |
+| **Map** | Geographic scatter on dark tiles. Heatmap, great-circle arcs, convex hull of selection. |
+| **Timeline** | Temporal scatter. Drag to brush a date range — filters all frames. |
+| **Chart** | Position × length scatter with axis ticks. |
+| **Graph** | Force-directed node graph with edge-type toggles. |
+| **Text** | Selected node's text with inline geo/temporal/entity highlights. |
+
+Layout is fully flexible: drag to split/resize panes, save named presets, add/maximize frames.
+
+See [`kb-viz/README.md`](kb-viz/README.md) for the full guide and changelog.
+
 ## Submodule setup
 
 ```bash

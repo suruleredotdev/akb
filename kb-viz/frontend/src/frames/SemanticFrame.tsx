@@ -1,19 +1,19 @@
 import { useMemo, useEffect, useRef, useState } from 'react';
 import DeckGL from '@deck.gl/react';
 import { ScatterplotLayer } from '@deck.gl/layers';
-import { OrthographicView } from '@deck.gl/core';
+import { OrthographicView, OrbitView } from '@deck.gl/core';
 import { useStore } from '../lib/use-store';
 import { useScopedIds } from '../lib/use-scoped-ids';
 import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
 import { makeColorEncoder } from '../lib/color-encoder';
+import type { SemanticFrameConfig } from '../state/view-store';
 import type { UmapRequest, UmapResponse, UmapError } from '../workers/umap.worker';
 import type { FrameProps } from './registry';
 
-interface Point { id: string; position: [number, number]; }
+interface Point { id: string; position: [number, number, number]; }
 
-// Vite worker import — bundled as a separate chunk
 const createWorker = () => new Worker(
   new URL('../workers/umap.worker.ts', import.meta.url),
   { type: 'module' },
@@ -27,6 +27,9 @@ export function SemanticFrame(_props: FrameProps) {
   const selected  = useStore(selectionStore, (s) => s.selected);
   const hovered   = useStore(selectionStore, (s) => s.hovered);
   const scopedIds = useScopedIds(level);
+  const rawConfig = useStore(viewStore, (s) => s.frameConfigs['semantic']);
+  const config    = (rawConfig ?? { mode: '2d', showKnnEdges: false, knnK: 5 }) as SemanticFrameConfig;
+  const mode      = config.mode;
 
   const [points, setPoints] = useState<Point[]>([]);
   const [computing, setComputing] = useState(false);
@@ -37,7 +40,6 @@ export function SemanticFrame(_props: FrameProps) {
     [nodesById, nodeTypes, colorBy],
   );
 
-  // Input: nodes with embeddings — stable reference used as worker trigger
   const embInput = useMemo(() => {
     const ids: string[] = [];
     const embeddings: number[][] = [];
@@ -57,7 +59,6 @@ export function SemanticFrame(_props: FrameProps) {
       return;
     }
 
-    // Terminate any in-flight worker before starting a new one
     workerRef.current?.terminate();
     const worker = createWorker();
     workerRef.current = worker;
@@ -66,7 +67,10 @@ export function SemanticFrame(_props: FrameProps) {
     worker.onmessage = (event: MessageEvent<UmapResponse | UmapError>) => {
       const msg = event.data;
       if (msg.type === 'result') {
-        setPoints(msg.ids.map((id, i) => ({ id, position: msg.coords[i] })));
+        setPoints(msg.ids.map((id, i) => {
+          const c = msg.coords[i];
+          return { id, position: [c[0], c[1], c[2] ?? 0] as [number, number, number] };
+        }));
       }
       setComputing(false);
       worker.terminate();
@@ -79,16 +83,23 @@ export function SemanticFrame(_props: FrameProps) {
       workerRef.current = null;
     };
 
-    const req: UmapRequest = { ids: embInput.ids, embeddings: embInput.embeddings };
+    const req: UmapRequest = {
+      ids: embInput.ids,
+      embeddings: embInput.embeddings,
+      nComponents: mode === '3d' ? 3 : 2,
+    };
     worker.postMessage(req);
 
     return () => {
       worker.terminate();
       workerRef.current = null;
     };
-  }, [embInput]);
+  }, [embInput, mode]);
 
   const initialViewState = useMemo(() => {
+    if (mode === '3d') {
+      return { target: [0, 0, 0] as [number, number, number], zoom: 0, rotationX: 20, rotationOrbit: 30 };
+    }
     if (points.length === 0) return { target: [0, 0, 0] as [number, number, number], zoom: 0 };
     const xs = points.map((p) => p.position[0]);
     const ys = points.map((p) => p.position[1]);
@@ -96,14 +107,31 @@ export function SemanticFrame(_props: FrameProps) {
     const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
     const range = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), 1);
     return { target: [cx, cy, 0] as [number, number, number], zoom: Math.log2(200 / range) };
-  }, [points]);
+  }, [points, mode]);
 
   if (embInput.embeddings.length === 0) {
     return <div className="frame-empty">No embeddings at level "{level}"</div>;
   }
 
+  const view = mode === '3d'
+    ? new OrbitView({ id: 'orbit' })
+    : new OrthographicView({ id: 'ortho' });
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      {/* 2D / 3D toggle */}
+      <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10, display: 'flex', gap: 4 }}>
+        {(['2d', '3d'] as const).map((m) => (
+          <button
+            key={m}
+            className={mode === m ? 'btn-primary' : 'btn-ghost'}
+            style={{ fontSize: 11, padding: '2px 7px' }}
+            onClick={() => viewStore.getState().setFrameConfig('semantic', { mode: m })}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
       {computing && (
         <div style={{
           position: 'absolute', top: 8, right: 8, zIndex: 10,
@@ -113,7 +141,8 @@ export function SemanticFrame(_props: FrameProps) {
         </div>
       )}
       <DeckGL
-        views={new OrthographicView({ id: 'ortho' })}
+        key={mode}
+        views={view}
         initialViewState={initialViewState}
         controller
         layers={[

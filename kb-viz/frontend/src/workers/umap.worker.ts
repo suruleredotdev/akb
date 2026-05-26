@@ -4,12 +4,13 @@ export interface UmapRequest {
   ids: string[];
   embeddings: number[][];
   seed?: number;
+  nComponents?: 2 | 3;
 }
 
 export interface UmapResponse {
   type: 'result';
   ids: string[];
-  coords: [number, number][];
+  coords: number[][];  // [x,y] or [x,y,z] depending on nComponents
 }
 
 export interface UmapError {
@@ -30,7 +31,7 @@ function seeded(seed: number): () => number {
 }
 
 self.onmessage = (event: MessageEvent<UmapRequest>) => {
-  const { ids, embeddings, seed = 42 } = event.data;
+  const { ids, embeddings, seed = 42, nComponents = 2 } = event.data;
 
   try {
     if (embeddings.length === 0) {
@@ -38,16 +39,18 @@ self.onmessage = (event: MessageEvent<UmapRequest>) => {
       return;
     }
     if (embeddings.length === 1) {
-      self.postMessage({ type: 'result', ids, coords: [[0, 0]] } satisfies UmapResponse);
+      const c = nComponents === 3 ? [[0, 0, 0]] : [[0, 0]];
+      self.postMessage({ type: 'result', ids, coords: c } satisfies UmapResponse);
       return;
     }
     if (embeddings.length === 2) {
-      self.postMessage({ type: 'result', ids, coords: [[-1, 0], [1, 0]] } satisfies UmapResponse);
+      const c = nComponents === 3 ? [[-1, 0, 0], [1, 0, 0]] : [[-1, 0], [1, 0]];
+      self.postMessage({ type: 'result', ids, coords: c } satisfies UmapResponse);
       return;
     }
 
     const nNeighbors = Math.min(15, Math.max(2, embeddings.length - 1));
-    const umap = new UMAP({ nComponents: 2, nNeighbors, minDist: 0.1, random: seeded(seed) });
+    const umap = new UMAP({ nComponents, nNeighbors, minDist: 0.1, random: seeded(seed) });
     const embedding = umap.fit(embeddings);
 
     const coords: [number, number][] = embedding.map((row) => [row[0], row[1]]);
