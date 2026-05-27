@@ -82,7 +82,7 @@ export interface LayoutState {
   removeFrame: (target: FrameType) => void;
 }
 
-function replaceInTree(root: PaneNode, target: FrameType, replacement: FrameType): PaneNode {
+export function replaceInTree(root: PaneNode, target: FrameType, replacement: FrameType): PaneNode {
   if (isLeaf(root)) return root === target ? replacement : root;
   return {
     ...root,
@@ -91,8 +91,8 @@ function replaceInTree(root: PaneNode, target: FrameType, replacement: FrameType
   };
 }
 
-// Returns null when the node itself should be removed; the caller collapses the split.
-function removeFromTree(root: PaneNode, target: FrameType): PaneNode | null {
+/** Returns null when the node itself should be removed; the caller collapses the split. */
+export function removeFromTree(root: PaneNode, target: FrameType): PaneNode | null {
   if (isLeaf(root)) return root === target ? null : root;
   const newFirst = removeFromTree(root.first, target);
   const newSecond = removeFromTree(root.second, target);
