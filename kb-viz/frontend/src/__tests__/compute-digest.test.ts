@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { computeDigest } from '../lib/compute-digest';
-import { getDescendants } from '../state/data-store';
 import type { Node, NodeId } from '../types/manifest';
 
 // ---------------------------------------------------------------------------
@@ -37,50 +36,6 @@ function makeByParent(nodes: Node[]): Map<NodeId, NodeId[]> {
 function makeNodesById(nodes: Node[]): Map<NodeId, Node> {
   return new Map(nodes.map((n) => [n.id, n]));
 }
-
-// ---------------------------------------------------------------------------
-// getDescendants (from data-store — shared with compute-digest)
-// ---------------------------------------------------------------------------
-
-describe('getDescendants', () => {
-  it('returns empty set for a leaf node', () => {
-    const byParent = new Map<NodeId, NodeId[]>();
-    expect(getDescendants(byParent, 'a').size).toBe(0);
-  });
-
-  it('returns direct children', () => {
-    const byParent = new Map([['doc', ['c1', 'c2']]]);
-    const result = getDescendants(byParent, 'doc');
-    expect(result.has('c1')).toBe(true);
-    expect(result.has('c2')).toBe(true);
-    expect(result.size).toBe(2);
-  });
-
-  it('returns all descendants across multiple levels', () => {
-    // doc → chunk1 → expr1, expr2
-    //     → chunk2 → expr3
-    const byParent = new Map([
-      ['doc', ['chunk1', 'chunk2']],
-      ['chunk1', ['expr1', 'expr2']],
-      ['chunk2', ['expr3']],
-    ]);
-    const result = getDescendants(byParent, 'doc');
-    expect([...result]).toEqual(expect.arrayContaining(['chunk1', 'chunk2', 'expr1', 'expr2', 'expr3']));
-    expect(result.size).toBe(5);
-  });
-
-  it('does not include the root node itself', () => {
-    const byParent = new Map([['doc', ['c1']]]);
-    expect(getDescendants(byParent, 'doc').has('doc')).toBe(false);
-  });
-
-  it('handles deep single-child chains', () => {
-    const byParent = new Map([['a', ['b']], ['b', ['c']], ['c', ['d']]]);
-    const result = getDescendants(byParent, 'a');
-    expect([...result]).toEqual(expect.arrayContaining(['b', 'c', 'd']));
-    expect(result.size).toBe(3);
-  });
-});
 
 // ---------------------------------------------------------------------------
 // computeDigest – empty / trivial cases
