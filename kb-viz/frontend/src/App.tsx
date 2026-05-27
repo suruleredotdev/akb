@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { dataStore } from './state/data-store';
 import { selectionStore } from './state/selection-store';
 import { viewStore } from './state/view-store';
+import { filterStore } from './state/filter-store';
 import { useStore } from './lib/use-store';
 import { loadManifest } from './lib/load-manifest';
 import { LevelSelector } from './components/LevelSelector';
@@ -24,6 +25,7 @@ export function App() {
   const manifest = useStore(dataStore, (s) => s.manifest);
   const nodeCount = useStore(dataStore, (s) => s.nodes.size);
   const scope = useStore(viewStore, (s) => s.scope);
+  const dateRange = useStore(filterStore, (s) => s.dateRange);
 
   useEffect(() => {
     loadManifest('/manifest.json')
@@ -69,6 +71,15 @@ export function App() {
         {scope !== 'global' && (
           <button className="scope-pill" onClick={() => viewStore.getState().drillOut()}>
             ↑ exit scope
+          </button>
+        )}
+        {dateRange && (
+          <button
+            className="scope-pill"
+            onClick={() => filterStore.getState().setDateRange(null)}
+            title="Clear date filter"
+          >
+            ✕ {new Date(dateRange.startMs).getUTCFullYear()}–{new Date(dateRange.endMs).getUTCFullYear()}
           </button>
         )}
         <LayoutMenu />
