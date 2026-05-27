@@ -1,40 +1,105 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
 import DeckGL from '@deck.gl/react';
 import { ScatterplotLayer } from '@deck.gl/layers';
-import { OrthographicView } from '@deck.gl/core';
+import { OrthographicView, OrbitView } from '@deck.gl/core';
 import { useStore } from '../lib/use-store';
 import { useScopedIds } from '../lib/use-scoped-ids';
 import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
 import { makeColorEncoder } from '../lib/color-encoder';
-import { projectSemantic } from '../projection/projectors/semantic';
+import type { SemanticFrameConfig } from '../state/view-store';
+import type { UmapRequest, UmapResponse, UmapError } from '../workers/umap.worker';
+import type { FrameProps } from './registry';
 
-interface Point { id: string; position: [number, number]; }
+interface Point { id: string; position: [number, number, number]; }
 
-export function SemanticFrame() {
+const createWorker = () => new Worker(
+  new URL('../workers/umap.worker.ts', import.meta.url),
+  { type: 'module' },
+);
+
+export function SemanticFrame(_props: FrameProps) {
   const nodesById = useStore(dataStore, (s) => s.nodes);
   const nodeTypes = useStore(dataStore, (s) => s.manifest?.node_types ?? []);
-  const level = useStore(viewStore, (s) => s.level);
-  const colorBy = useStore(viewStore, (s) => s.colorBy);
-  const selected = useStore(selectionStore, (s) => s.selected);
+  const level     = useStore(viewStore, (s) => s.level);
+  const colorBy   = useStore(viewStore, (s) => s.colorBy);
+  const selected  = useStore(selectionStore, (s) => s.selected);
+  const hovered   = useStore(selectionStore, (s) => s.hovered);
   const scopedIds = useScopedIds(level);
+  const rawConfig = useStore(viewStore, (s) => s.frameConfigs['semantic']);
+  const config    = (rawConfig ?? { mode: '2d', showKnnEdges: false, knnK: 5 }) as SemanticFrameConfig;
+  const mode      = config.mode;
+
+  const [points, setPoints] = useState<Point[]>([]);
+  const [computing, setComputing] = useState(false);
+  const workerRef = useRef<Worker | null>(null);
 
   const encode = useMemo(
     () => makeColorEncoder(nodesById, nodeTypes, colorBy),
     [nodesById, nodeTypes, colorBy],
   );
 
-  const points = useMemo<Point[]>(() => {
-    const ns = scopedIds.map((id) => nodesById.get(id)).filter((n): n is NonNullable<typeof n> => n != null);
-    const positions = projectSemantic(ns);
-    return Array.from(positions.entries()).map(([id, p]) => ({
-      id,
-      position: [p[0], p[1]] as [number, number],
-    }));
+  const embInput = useMemo(() => {
+    const ids: string[] = [];
+    const embeddings: number[][] = [];
+    for (const id of scopedIds) {
+      const n = nodesById.get(id);
+      if (n && Array.isArray(n.embedding) && n.embedding.length > 0) {
+        ids.push(id);
+        embeddings.push(n.embedding);
+      }
+    }
+    return { ids, embeddings };
   }, [nodesById, scopedIds]);
 
+  useEffect(() => {
+    if (embInput.embeddings.length === 0) {
+      setPoints([]);
+      return;
+    }
+
+    workerRef.current?.terminate();
+    const worker = createWorker();
+    workerRef.current = worker;
+    setComputing(true);
+
+    worker.onmessage = (event: MessageEvent<UmapResponse | UmapError>) => {
+      const msg = event.data;
+      if (msg.type === 'result') {
+        setPoints(msg.ids.map((id, i) => {
+          const c = msg.coords[i];
+          return { id, position: [c[0], c[1], c[2] ?? 0] as [number, number, number] };
+        }));
+      }
+      setComputing(false);
+      worker.terminate();
+      workerRef.current = null;
+    };
+
+    worker.onerror = () => {
+      setComputing(false);
+      worker.terminate();
+      workerRef.current = null;
+    };
+
+    const req: UmapRequest = {
+      ids: embInput.ids,
+      embeddings: embInput.embeddings,
+      nComponents: mode === '3d' ? 3 : 2,
+    };
+    worker.postMessage(req);
+
+    return () => {
+      worker.terminate();
+      workerRef.current = null;
+    };
+  }, [embInput, mode]);
+
   const initialViewState = useMemo(() => {
+    if (mode === '3d') {
+      return { target: [0, 0, 0] as [number, number, number], zoom: 0, rotationX: 20, rotationOrbit: 30 };
+    }
     if (points.length === 0) return { target: [0, 0, 0] as [number, number, number], zoom: 0 };
     const xs = points.map((p) => p.position[0]);
     const ys = points.map((p) => p.position[1]);
@@ -42,44 +107,78 @@ export function SemanticFrame() {
     const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
     const range = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), 1);
     return { target: [cx, cy, 0] as [number, number, number], zoom: Math.log2(200 / range) };
-  }, [points]);
+  }, [points, mode]);
 
-  if (points.length === 0) {
+  if (embInput.embeddings.length === 0) {
     return <div className="frame-empty">No embeddings at level "{level}"</div>;
   }
 
+  const view = mode === '3d'
+    ? new OrbitView({ id: 'orbit' })
+    : new OrthographicView({ id: 'ortho' });
+
   return (
-    <DeckGL
-      views={new OrthographicView({ id: 'ortho' })}
-      initialViewState={initialViewState}
-      controller
-      layers={[
-        new ScatterplotLayer<Point>({
-          id: 'semantic-points',
-          data: points,
-          getPosition: (d) => d.position,
-          getRadius: (d) => (selected.has(d.id) ? 9 : 5),
-          getFillColor: (d) => encode(d.id, selected.has(d.id)),
-          radiusUnits: 'pixels',
-          stroked: true,
-          getLineColor: [255, 255, 255, 60],
-          lineWidthUnits: 'pixels',
-          lineWidthMinPixels: 1,
-          pickable: true,
-          onClick: (info) => {
-            const id = (info.object as Point | undefined)?.id;
-            if (id) selectionStore.getState().selectOnly(id);
-          },
-          onHover: (info) => {
-            const id = (info.object as Point | undefined)?.id;
-            selectionStore.getState().hover(id ?? null);
-          },
-          updateTriggers: {
-            getRadius: [selected],
-            getFillColor: [selected, colorBy, nodesById],
-          },
-        }),
-      ]}
-    />
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      {/* 2D / 3D toggle */}
+      <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10, display: 'flex', gap: 4 }}>
+        {(['2d', '3d'] as const).map((m) => (
+          <button
+            key={m}
+            className={mode === m ? 'btn-primary' : 'btn-ghost'}
+            style={{ fontSize: 11, padding: '2px 7px' }}
+            onClick={() => viewStore.getState().setFrameConfig('semantic', { mode: m })}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+      {computing && (
+        <div style={{
+          position: 'absolute', top: 8, right: 8, zIndex: 10,
+          fontSize: 11, color: 'var(--text-dim)', pointerEvents: 'none',
+        }}>
+          computing UMAP…
+        </div>
+      )}
+      <DeckGL
+        key={mode}
+        views={view}
+        initialViewState={initialViewState}
+        controller
+        layers={[
+          new ScatterplotLayer<Point>({
+            id: 'semantic-points',
+            data: points,
+            getPosition: (d) => d.position,
+            getRadius: (d) => (selected.has(d.id) ? 9 : hovered === d.id ? 7 : 5),
+            getFillColor: (d) => {
+              if (selected.has(d.id)) return [240, 80, 40, 255];
+              if (hovered === d.id) return [251, 191, 36, 255];
+              const [r, g, b, a] = encode(d.id, false);
+              return [r, g, b, selected.size > 0 ? 51 : a];
+            },
+            radiusUnits: 'pixels',
+            stroked: true,
+            getLineColor: [255, 255, 255, 60],
+            lineWidthUnits: 'pixels',
+            lineWidthMinPixels: 1,
+            pickable: true,
+            onClick: (info) => {
+              const id = (info.object as Point | undefined)?.id;
+              if (id) selectionStore.getState().selectOnly(id);
+            },
+            onHover: (info) => {
+              const id = (info.object as Point | undefined)?.id;
+              selectionStore.getState().hover(id ?? null);
+            },
+            updateTriggers: {
+              getRadius: [selected, hovered],
+              getFillColor: [selected, hovered, colorBy, nodesById],
+            },
+            transitions: { getFillColor: 120 },
+          }),
+        ]}
+      />
+    </div>
   );
 }
