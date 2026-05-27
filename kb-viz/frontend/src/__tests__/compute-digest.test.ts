@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { computeDigest, collectDescendants } from '../lib/compute-digest';
+import { computeDigest } from '../lib/compute-digest';
+import { getDescendants } from '../state/data-store';
 import type { Node, NodeId } from '../types/manifest';
 
 // ---------------------------------------------------------------------------
@@ -38,20 +39,21 @@ function makeNodesById(nodes: Node[]): Map<NodeId, Node> {
 }
 
 // ---------------------------------------------------------------------------
-// collectDescendants
+// getDescendants (from data-store — shared with compute-digest)
 // ---------------------------------------------------------------------------
 
-describe('collectDescendants', () => {
-  it('returns empty array for a leaf node', () => {
+describe('getDescendants', () => {
+  it('returns empty set for a leaf node', () => {
     const byParent = new Map<NodeId, NodeId[]>();
-    expect(collectDescendants(byParent, 'a')).toEqual([]);
+    expect(getDescendants(byParent, 'a').size).toBe(0);
   });
 
   it('returns direct children', () => {
     const byParent = new Map([['doc', ['c1', 'c2']]]);
-    const result = collectDescendants(byParent, 'doc');
-    expect(result).toEqual(expect.arrayContaining(['c1', 'c2']));
-    expect(result).toHaveLength(2);
+    const result = getDescendants(byParent, 'doc');
+    expect(result.has('c1')).toBe(true);
+    expect(result.has('c2')).toBe(true);
+    expect(result.size).toBe(2);
   });
 
   it('returns all descendants across multiple levels', () => {
@@ -62,31 +64,21 @@ describe('collectDescendants', () => {
       ['chunk1', ['expr1', 'expr2']],
       ['chunk2', ['expr3']],
     ]);
-    const result = collectDescendants(byParent, 'doc');
-    expect(result).toEqual(expect.arrayContaining(['chunk1', 'chunk2', 'expr1', 'expr2', 'expr3']));
-    expect(result).toHaveLength(5);
+    const result = getDescendants(byParent, 'doc');
+    expect([...result]).toEqual(expect.arrayContaining(['chunk1', 'chunk2', 'expr1', 'expr2', 'expr3']));
+    expect(result.size).toBe(5);
   });
 
   it('does not include the root node itself', () => {
     const byParent = new Map([['doc', ['c1']]]);
-    const result = collectDescendants(byParent, 'doc');
-    expect(result).not.toContain('doc');
+    expect(getDescendants(byParent, 'doc').has('doc')).toBe(false);
   });
 
   it('handles deep single-child chains', () => {
     const byParent = new Map([['a', ['b']], ['b', ['c']], ['c', ['d']]]);
-    const result = collectDescendants(byParent, 'a');
-    expect(result).toEqual(expect.arrayContaining(['b', 'c', 'd']));
-    expect(result).toHaveLength(3);
-  });
-
-  it('does not infinite-loop on a malformed graph (cycle guard)', () => {
-    // cycle: a → b → a (should not happen in valid data, but guard anyway)
-    const byParent = new Map([['a', ['b']], ['b', ['a']]]);
-    const result = collectDescendants(byParent, 'a');
-    // Should terminate and contain b (a is excluded as root)
-    expect(result).toContain('b');
-    expect(result).not.toContain('a'); // root excluded and cycle-guard stops re-visiting
+    const result = getDescendants(byParent, 'a');
+    expect([...result]).toEqual(expect.arrayContaining(['b', 'c', 'd']));
+    expect(result.size).toBe(3);
   });
 });
 

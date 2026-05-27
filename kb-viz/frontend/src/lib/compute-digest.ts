@@ -18,6 +18,7 @@
  * Walking the descendant tree ensures those annotations are surfaced.
  */
 
+import { getDescendants } from '../state/data-store';
 import { isTemporal, isGeographic, isEntityRef } from '../types/manifest';
 import type { Node, NodeId } from '../types/manifest';
 
@@ -40,38 +41,12 @@ export interface Digest {
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Internal helpers
 // ---------------------------------------------------------------------------
 
 /**
- * Collect all descendant IDs of `rootId` via a BFS over `byParent`.
- * Does NOT include `rootId` itself.
- */
-export function collectDescendants(
-  byParent: Map<NodeId, NodeId[]>,
-  rootId: NodeId,
-): NodeId[] {
-  const result: NodeId[] = [];
-  const queue: NodeId[] = [rootId];
-  const seen = new Set<NodeId>();
-  seen.add(rootId);
-
-  while (queue.length > 0) {
-    const cur = queue.shift()!;
-    for (const child of byParent.get(cur) ?? []) {
-      if (!seen.has(child)) {
-        seen.add(child);
-        result.push(child);
-        queue.push(child);
-      }
-    }
-  }
-  return result;
-}
-
-/**
  * Accumulate annotations for a single root node + its descendants into the
- * running aggregation state.  `visitedIds` is a global dedup set – any node
+ * running aggregation state. `visitedIds` is a global dedup set — any node
  * ID already in it is skipped to avoid double-counting when a subtree was
  * already walked by an earlier root.
  */
@@ -88,7 +63,9 @@ function accumulate(
     derivedFromDescendants: number;
   },
 ): void {
-  const idsToCheck: NodeId[] = [rootNode.id, ...collectDescendants(byParent, rootNode.id)];
+  // getDescendants returns a Set (does not include rootId itself)
+  const descendants = getDescendants(byParent, rootNode.id);
+  const idsToCheck: NodeId[] = [rootNode.id, ...descendants];
   const rootHadDirect = rootNode.annotations.length > 0;
 
   for (const id of idsToCheck) {
@@ -113,7 +90,7 @@ function accumulate(
     }
   }
 
-  if (!rootHadDirect && idsToCheck.length > 1) {
+  if (!rootHadDirect && descendants.size > 0) {
     state.derivedFromDescendants++;
   }
 }
