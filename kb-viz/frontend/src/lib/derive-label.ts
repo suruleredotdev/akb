@@ -4,6 +4,10 @@ export function deriveLabel(node: Node, maxLen = 80): string {
   const title = node.properties['title'];
   if (title?.kind === 'categorical') return title.value;
 
+  // 'label' is used by document nodes (and other top-level types without a title)
+  const label = node.properties['label'];
+  if (label?.kind === 'categorical') return label.value;
+
   const source = node.properties['source'];
   if (source?.kind === 'categorical') {
     // Show just the filename, not a full path/URL
