@@ -8,6 +8,7 @@ import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
 import { makeColorEncoder } from '../lib/color-encoder';
+import { useBoxSelect, BoxSelectOverlay } from '../lib/use-box-select';
 import type { GraphLayoutRequest, GraphLayoutResponse } from '../workers/graph-layout.worker';
 import type { FrameProps } from './registry';
 
@@ -135,12 +136,20 @@ export function GraphFrame(_props: FrameProps) {
     return EDGE_TYPES.filter((t) => s.has(t));
   }, [scopedEdges]);
 
+  const { deckRef, dragRect, onMouseDown } = useBoxSelect<GNode>({
+    extractId: (obj) => obj?.id,
+    onSelect: (ids, shift) => {
+      if (shift) selectionStore.getState().addToSelection(ids);
+      else selectionStore.getState().boxSelect(ids);
+    },
+  });
+
   if (scopedIds.length === 0) {
     return <div className="frame-empty">No nodes at level "{level}"</div>;
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }} onMouseDown={onMouseDown}>
       {/* Edge type filters */}
       {presentTypes.length > 0 && (
         <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10, display: 'flex', gap: 4 }}>
@@ -164,7 +173,10 @@ export function GraphFrame(_props: FrameProps) {
           computing layout…
         </div>
       )}
+      {dragRect && <BoxSelectOverlay rect={dragRect} />}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <DeckGL
+        ref={deckRef as any}
         views={new OrthographicView({ id: 'graph' })}
         initialViewState={viewState}
         controller

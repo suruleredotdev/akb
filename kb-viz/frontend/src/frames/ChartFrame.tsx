@@ -9,6 +9,7 @@ import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
 import { makeColorEncoder } from '../lib/color-encoder';
 import { getScalar } from '../types/manifest';
+import { useBoxSelect, BoxSelectOverlay } from '../lib/use-box-select';
 import type { FrameProps } from './registry';
 
 interface Point { id: string; x: number; y: number; }
@@ -77,6 +78,14 @@ export function ChartFrame({ width: _w, height: _h }: FrameProps) {
     return [r, g, b, selected.size > 0 ? 51 : a];
   }, [selected, hovered, encode]);
 
+  const { deckRef, dragRect, onMouseDown } = useBoxSelect<Point>({
+    extractId: (obj) => obj?.id,
+    onSelect: (ids, shift) => {
+      if (shift) selectionStore.getState().addToSelection(ids);
+      else selectionStore.getState().boxSelect(ids);
+    },
+  });
+
   if (points.length === 0) {
     return <div className="frame-empty">No length/position data at level "{level}"</div>;
   }
@@ -85,7 +94,11 @@ export function ChartFrame({ width: _w, height: _h }: FrameProps) {
   const labelColor: [number, number, number, number] = [100, 116, 139, 255];
 
   return (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }} onMouseDown={onMouseDown}>
+      {dragRect && <BoxSelectOverlay rect={dragRect} />}
+    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
     <DeckGL
+      ref={deckRef as any}
       views={new OrthographicView({ id: 'chart' })}
       initialViewState={viewState}
       controller
@@ -161,5 +174,6 @@ export function ChartFrame({ width: _w, height: _h }: FrameProps) {
         }),
       ]}
     />
+    </div>
   );
 }
