@@ -13,6 +13,7 @@ import {
   type PropertyValue,
 } from '../types/manifest';
 
+import { deriveLabel } from '../lib/derive-label';
 import type { FrameProps } from './registry';
 export function TextFrame(_props: FrameProps) {
   const nodesById = useStore(dataStore, (s) => s.nodes);
@@ -38,9 +39,10 @@ export function TextFrame(_props: FrameProps) {
 
   return (
     <div className="text-frame">
-      <h3>{node.id}</h3>
+      <h3 title={node.id}>{deriveLabel(node)}</h3>
       <div className="meta">
-        type: <strong>{node.type}</strong>
+        <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10, color: 'var(--text-muted)', userSelect: 'all' }}>{node.id}</span>
+        {' · '}type: <strong>{node.type}</strong>
         {node.annotations.length > 0 && <> · {node.annotations.length} annotations</>}
       </div>
       <NodeNav node={node} nodesById={nodesById} />
@@ -79,18 +81,19 @@ function NodeNav({ node, nodesById }: { node: Node; nodesById: Map<string, Node>
                 {i > 0 && <span className="nav-sep">›</span>}
                 <button
                   className="nav-link"
+                  title={anc.id}
                   onClick={() => {
                     selectionStore.getState().selectOnly(anc.id);
                     viewStore.getState().setLevel(anc.type as Level);
                   }}
                 >
                   <span className="type-badge">{anc.type}</span>
-                  {anc.id}
+                  {deriveLabel(anc, 40)}
                 </button>
               </span>
             ))}
             <span className="nav-sep">›</span>
-            <span className="nav-current">{node.id}</span>
+            <span className="nav-current" title={node.id}>{deriveLabel(node, 40)}</span>
           </div>
         </div>
       )}
@@ -112,12 +115,13 @@ function NodeNav({ node, nodesById }: { node: Node; nodesById: Map<string, Node>
               <button
                 key={child.id}
                 className="nav-link child-link"
+                title={child.id}
                 onClick={() => {
                   selectionStore.getState().selectOnly(child.id);
                   viewStore.getState().setLevel(child.type as Level);
                 }}
               >
-                {child.id}
+                {deriveLabel(child, 40)}
               </button>
             ))}
             {children.length > 6 && (
