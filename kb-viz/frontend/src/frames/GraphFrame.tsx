@@ -207,9 +207,12 @@ export function GraphFrame(_props: FrameProps) {
             lineWidthUnits: 'pixels',
             lineWidthMinPixels: 1,
             pickable: true,
-            onClick: (info) => {
+            onClick: (info, event) => {
               const id = (info.object as GNode | undefined)?.id;
-              if (id) selectionStore.getState().selectOnly(id);
+              if (!id) return;
+              const shift = (event?.srcEvent as MouseEvent | undefined)?.shiftKey ?? false;
+              if (shift) selectionStore.getState().toggle(id);
+              else selectionStore.getState().selectOnly(id);
             },
             onHover: (info) => {
               selectionStore.getState().hover((info.object as GNode | undefined)?.id ?? null);
