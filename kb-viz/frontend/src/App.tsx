@@ -63,7 +63,16 @@ export function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>kb-viz</h1>
+        <a className="header-wordmark" href="https://surulere.dev" target="_blank" rel="noopener noreferrer">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+            <rect x="1" y="1" width="16" height="16" rx="3.5" fill="var(--accent)" opacity="0.15"/>
+            <rect x="4" y="5" width="10" height="1.5" rx="0.75" fill="var(--accent)"/>
+            <rect x="4" y="8.25" width="10" height="1.5" rx="0.75" fill="var(--accent)"/>
+            <rect x="4" y="11.5" width="6.5" height="1.5" rx="0.75" fill="var(--accent)"/>
+          </svg>
+          <span className="header-wordmark-text">akb</span>
+          <span className="header-wordmark-domain">surulere.dev</span>
+        </a>
         <LevelSelector />
         <ColorBySelector />
         {scope !== 'global' && (

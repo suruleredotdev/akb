@@ -87,7 +87,14 @@ export function ChartFrame({ width: _w, height: _h }: FrameProps) {
   });
 
   if (points.length === 0) {
-    return <div className="frame-empty">No length/position data at level "{level}"</div>;
+    return (
+      <div className="frame-empty">
+        <div>No position data at level <strong>{level}</strong></div>
+        <div className="frame-empty-hint">
+          This chart shows chunk position vs length. Switch to "chunk" level to see nodes plotted here.
+        </div>
+      </div>
+    );
   }
 
   const axisColor: [number, number, number, number] = [64, 68, 96, 255];

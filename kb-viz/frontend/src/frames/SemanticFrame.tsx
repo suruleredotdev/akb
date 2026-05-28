@@ -119,7 +119,16 @@ export function SemanticFrame(_props: FrameProps) {
   }, [points, mode]);
 
   if (embInput.embeddings.length === 0) {
-    return <div className="frame-empty">No embeddings at level "{level}"</div>;
+    return (
+      <div className="frame-empty">
+        <div>No embeddings at level <strong>{level}</strong></div>
+        <div className="frame-empty-hint">
+          {level === 'document'
+            ? 'Document-level embeddings are not yet generated. Switch to "chunk" level, or run akb embed --all.'
+            : 'Drill into a node to see embeddings at a finer level, or run akb embed --all to generate chunk embeddings.'}
+        </div>
+      </div>
+    );
   }
 
   const view = mode === '3d'
