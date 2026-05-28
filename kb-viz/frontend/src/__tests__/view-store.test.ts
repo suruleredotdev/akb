@@ -25,14 +25,16 @@ function makeNode(overrides: Partial<Node> & { id: string }): Node {
 
 function makeManifest(nodes: Node[]): Manifest {
   return {
+    version: '1',
     schema_id: 'test',
     label: 'test',
     node_types: [
-      { id: 'document', label: 'Document', display: { color: '#fff', icon: null, size: 10 } },
-      { id: 'chunk',    label: 'Chunk',    display: { color: '#aaa', icon: null, size: 6 } },
-      { id: 'expression', label: 'Expression', display: { color: '#888', icon: null, size: 4 } },
+      { id: 'document',   parent_types: [],           child_types: ['chunk'],      display: { label: 'Document',   color: '#fff', icon: null } },
+      { id: 'chunk',      parent_types: ['document'],  child_types: ['expression'], display: { label: 'Chunk',      color: '#aaa', icon: null } },
+      { id: 'expression', parent_types: ['chunk'],     child_types: [],             display: { label: 'Expression', color: '#888', icon: null } },
     ],
-    edge_types: [],
+    annotation_types: [],
+    frames: [],
     nodes,
     edges: [],
   };
