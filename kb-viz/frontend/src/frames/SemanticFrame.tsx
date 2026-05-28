@@ -127,8 +127,7 @@ export function SemanticFrame(_props: FrameProps) {
     : new OrthographicView({ id: 'ortho' });
 
   return (
-    <div
-      style={{ position: 'relative', width: '100%', height: '100%' }}
+    <div style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--surface)' }}
       onMouseDown={onMouseDown}
     >
       {/* 2D / 3D toggle */}

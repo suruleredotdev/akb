@@ -80,15 +80,26 @@ export interface LayoutState {
   loadPreset: (name: string) => void;
   maximize: (frame: FrameType | null) => void;
   replaceFrame: (target: FrameType, replacement: FrameType) => void;
+  removeFrame: (target: FrameType) => void;
 }
 
-function replaceInTree(root: PaneNode, target: FrameType, replacement: FrameType): PaneNode {
+export function replaceInTree(root: PaneNode, target: FrameType, replacement: FrameType): PaneNode {
   if (isLeaf(root)) return root === target ? replacement : root;
   return {
     ...root,
     first: replaceInTree(root.first, target, replacement),
     second: replaceInTree(root.second, target, replacement),
   };
+}
+
+/** Returns null when the node itself should be removed; the caller collapses the split. */
+export function removeFromTree(root: PaneNode, target: FrameType): PaneNode | null {
+  if (isLeaf(root)) return root === target ? null : root;
+  const newFirst = removeFromTree(root.first, target);
+  const newSecond = removeFromTree(root.second, target);
+  if (newFirst === null) return newSecond;
+  if (newSecond === null) return newFirst;
+  return { ...root, first: newFirst, second: newSecond };
 }
 
 export const layoutStore = createStore<LayoutState>()(
@@ -112,6 +123,15 @@ export const layoutStore = createStore<LayoutState>()(
 
       replaceFrame: (target, replacement) =>
         set((s) => ({ root: replaceInTree(s.root, target, replacement) })),
+
+      removeFrame: (target) =>
+        set((s) => {
+          const next = removeFromTree(s.root, target);
+          // Never leave an empty layout
+          if (next === null) return s;
+          const maximized = s.maximized === target ? null : s.maximized;
+          return { root: next, maximized };
+        }),
     }),
     {
       name: 'kb-viz:layout',

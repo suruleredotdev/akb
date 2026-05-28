@@ -110,6 +110,7 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
   }
 
   return (
+    <div style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--surface)' }}>
     <DeckGL
       views={new OrthographicView({ id: 'timeline' })}
       initialViewState={viewState}
@@ -186,5 +187,6 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
         setBrush(null);
       }}
     />
+    </div>
   );
 }
