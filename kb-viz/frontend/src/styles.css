@@ -128,7 +128,7 @@ body {
   gap: 6px;
   height: 100%;
   color: var(--text-muted);
-  background: var(--bg) !important;
+  background: var(--surface);
   font-size: 12px;
   text-align: center;
   padding: 24px;
