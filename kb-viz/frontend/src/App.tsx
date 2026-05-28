@@ -63,7 +63,10 @@ export function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>kb-viz</h1>
+        <a className="header-wordmark" href="https://surulere.dev" target="_blank" rel="noopener noreferrer">
+          <img src="https://surulere.dev/assets/img/suruleredotdev_green_bg_bold.svg" width="20" height="20" alt="surulere.dev" />
+          <span className="header-wordmark-text">AKB</span>
+        </a>
         <LevelSelector />
         <ColorBySelector />
         {scope !== 'global' && (
