@@ -16,7 +16,8 @@ export type FrameType =
   | 'text'
   | 'graph'
   | 'search'
-  | 'entity';
+  | 'entity'
+  | 'summary';
 
 // ---------------------------------------------------------------------------
 // Mosaic-compatible pane tree (binary split tree)

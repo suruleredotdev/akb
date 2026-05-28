@@ -5,6 +5,10 @@ import { TimelineFrame } from './TimelineFrame';
 import { ChartFrame } from './ChartFrame';
 import { TextFrame } from './TextFrame';
 import { GraphFrame } from './GraphFrame';
+import { SummaryFrame } from './SummaryFrame';
+
+// Activate history tracking (subscribes to selectionStore)
+import '../state/history-store';
 
 registerFrame('semantic', SemanticFrame);
 registerFrame('map', MapFrame);
@@ -12,3 +16,4 @@ registerFrame('timeline', TimelineFrame);
 registerFrame('chart', ChartFrame);
 registerFrame('text', TextFrame);
 registerFrame('graph', GraphFrame);
+registerFrame('summary', SummaryFrame);

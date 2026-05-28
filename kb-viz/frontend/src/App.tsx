@@ -152,7 +152,7 @@ function LayoutMenu() {
   );
 }
 
-const ADDABLE_FRAMES: FrameType[] = ['semantic', 'map', 'timeline', 'chart', 'text'];
+const ADDABLE_FRAMES: FrameType[] = ['semantic', 'map', 'timeline', 'chart', 'text', 'graph', 'summary'];
 
 function AddFrameButton() {
   return (

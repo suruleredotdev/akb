@@ -16,6 +16,7 @@ const FRAME_LABELS: Record<FrameType, string> = {
   graph:     'Graph',
   search:    'Search',
   entity:    'Entity',
+  summary:   'Summary',
 };
 
 export function AppShell() {
