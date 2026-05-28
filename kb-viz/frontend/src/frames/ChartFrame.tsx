@@ -94,11 +94,12 @@ export function ChartFrame({ width: _w, height: _h }: FrameProps) {
   const labelColor: [number, number, number, number] = [100, 116, 139, 255];
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--surface)' }} onMouseDown={onMouseDown}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--surface)' }} onMouseDownCapture={onMouseDown}>
       {dragRect && <BoxSelectOverlay rect={dragRect} />}
     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
     <DeckGL
       ref={deckRef as any}
+      style={{ background: 'var(--surface)' }}
       views={new OrthographicView({ id: 'chart' })}
       initialViewState={viewState}
       controller

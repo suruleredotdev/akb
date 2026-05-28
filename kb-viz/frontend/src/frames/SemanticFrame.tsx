@@ -128,7 +128,7 @@ export function SemanticFrame(_props: FrameProps) {
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--surface)' }}
-      onMouseDown={onMouseDown}
+      onMouseDownCapture={onMouseDown}
     >
       {/* 2D / 3D toggle */}
       <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10, display: 'flex', gap: 4 }}>
@@ -155,6 +155,7 @@ export function SemanticFrame(_props: FrameProps) {
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <DeckGL
         ref={deckRef as any}
+        style={{ background: 'var(--surface)' }}
         key={mode}
         views={view}
         initialViewState={initialViewState}
