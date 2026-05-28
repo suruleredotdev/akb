@@ -336,8 +336,9 @@ body {
 .node-tooltip .tt-badges { display: flex; gap: 4px; flex-wrap: wrap; }
 
 /* ── Mosaic overrides ─────────────────────────────────────────────────────── */
-.mosaic-root { background: var(--border) !important; }
+.mosaic-root { background: var(--border) !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; }
 .mosaic-tile { background: var(--bg) !important; }
+.mosaic-window-body { background: var(--border) !important; }
 .mosaic-split { background: var(--border) !important; }
 .mosaic-split:hover { background: var(--accent) !important; }
 .mosaic-window { background: var(--bg) !important; border: none !important; }
