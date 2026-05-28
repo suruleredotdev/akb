@@ -94,7 +94,7 @@ export function ChartFrame({ width: _w, height: _h }: FrameProps) {
   const labelColor: [number, number, number, number] = [100, 116, 139, 255];
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }} onMouseDown={onMouseDown}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--surface)' }} onMouseDown={onMouseDown}>
       {dragRect && <BoxSelectOverlay rect={dragRect} />}
     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
     <DeckGL
