@@ -293,5 +293,66 @@ def geoagent(
     agent.run(prompt)
 
 
+# ── manifest ─────────────────────────────────────────────────────────────────
+
+@app.command()
+def manifest(
+    out: str = typer.Option(
+        None, "--out", "-o",
+        help="Output path (default: kb-viz/frontend/public/manifest.json)",
+    ),
+    no_text: bool = typer.Option(False, "--no-text", help="Strip text from nodes"),
+    no_embeddings: bool = typer.Option(False, "--no-embeddings", help="Strip embeddings"),
+    arrow: str = typer.Option(None, "--arrow", help="Side-load embeddings to Arrow file"),
+    schema_id: str = typer.Option("akb_default", "--schema-id"),
+    label: str = typer.Option(None, "--label"),
+):
+    """Export the akb SQLite database as a kb-viz manifest JSON."""
+    import sys
+    from pathlib import Path as _Path
+
+    from cli.db import DB_PATH
+
+    # kb_viz lives in kb-viz/kb_viz/ relative to the project root
+    _kb_viz_root = _Path(__file__).parent.parent / "kb-viz"
+    if str(_kb_viz_root) not in sys.path:
+        sys.path.insert(0, str(_kb_viz_root))
+
+    try:
+        from kb_viz.akb_adapter import ExportOptions, export_manifest, split_embeddings_to_arrow
+    except ImportError as exc:
+        console.print(f"[red]kb_viz not found: {exc}[/red]")
+        console.print(f"  Expected at: {_kb_viz_root}")
+        raise typer.Exit(1)
+
+    if not DB_PATH.exists():
+        console.print("[yellow]No database found. Run `akb ingest` first.[/yellow]")
+        raise typer.Exit(1)
+
+    default_out = _kb_viz_root / "frontend" / "public" / "manifest.json"
+    out_path = _Path(out) if out else default_out
+
+    options = ExportOptions(
+        include_text=not no_text,
+        include_embeddings=not no_embeddings,
+    )
+
+    console.print(f"Exporting manifest from [cyan]{DB_PATH}[/cyan]…")
+    m = export_manifest(DB_PATH, schema_id=schema_id, label=label, options=options)
+
+    if arrow:
+        m = split_embeddings_to_arrow(m, arrow)
+        console.print(f"  Embeddings → [cyan]{arrow}[/cyan]")
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(m.model_dump_json(indent=2), encoding="utf-8")
+
+    size_kb = out_path.stat().st_size // 1024
+    console.print(
+        f"[green]manifest.json written →[/green] {out_path}  "
+        f"({len(m.nodes)} nodes, {len(m.edges)} edges, {size_kb} KB)"
+    )
+
+
 if __name__ == "__main__":
     app()
