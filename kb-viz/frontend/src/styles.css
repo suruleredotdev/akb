@@ -70,7 +70,7 @@ body {
 .header-wordmark-text {
   font-size: 15px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--text);
   letter-spacing: -0.3px;
 }
 .header-wordmark-domain {

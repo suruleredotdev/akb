@@ -65,8 +65,7 @@ export function App() {
       <header className="header">
         <a className="header-wordmark" href="https://surulere.dev" target="_blank" rel="noopener noreferrer">
           <img src="https://surulere.dev/assets/img/suruleredotdev_green_bg_bold.svg" width="20" height="20" alt="surulere.dev" />
-          <span className="header-wordmark-text">akb</span>
-          <span className="header-wordmark-domain">surulere.dev</span>
+          <span className="header-wordmark-text">AKB</span>
         </a>
         <LevelSelector />
         <ColorBySelector />
