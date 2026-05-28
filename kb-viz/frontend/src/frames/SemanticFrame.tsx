@@ -8,6 +8,7 @@ import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
 import { makeColorEncoder } from '../lib/color-encoder';
+import { useBoxSelect, BoxSelectOverlay } from '../lib/use-box-select';
 import type { SemanticFrameConfig } from '../state/view-store';
 import type { UmapRequest, UmapResponse, UmapError } from '../workers/umap.worker';
 import type { FrameProps } from './registry';
@@ -34,6 +35,14 @@ export function SemanticFrame(_props: FrameProps) {
   const [points, setPoints] = useState<Point[]>([]);
   const [computing, setComputing] = useState(false);
   const workerRef = useRef<Worker | null>(null);
+
+  const { deckRef, dragRect, onMouseDown } = useBoxSelect<Point>({
+    extractId: (obj) => obj?.id,
+    onSelect: (ids, shift) => {
+      if (shift) selectionStore.getState().addToSelection(ids);
+      else selectionStore.getState().boxSelect(ids);
+    },
+  });
 
   const encode = useMemo(
     () => makeColorEncoder(nodesById, nodeTypes, colorBy),
@@ -118,7 +127,9 @@ export function SemanticFrame(_props: FrameProps) {
     : new OrthographicView({ id: 'ortho' });
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--surface)' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--surface)' }}
+      onMouseDown={onMouseDown}
+    >
       {/* 2D / 3D toggle */}
       <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 10, display: 'flex', gap: 4 }}>
         {(['2d', '3d'] as const).map((m) => (
@@ -140,7 +151,10 @@ export function SemanticFrame(_props: FrameProps) {
           computing UMAP…
         </div>
       )}
+      {dragRect && <BoxSelectOverlay rect={dragRect} />}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <DeckGL
+        ref={deckRef as any}
         key={mode}
         views={view}
         initialViewState={initialViewState}
@@ -163,9 +177,12 @@ export function SemanticFrame(_props: FrameProps) {
             lineWidthUnits: 'pixels',
             lineWidthMinPixels: 1,
             pickable: true,
-            onClick: (info) => {
+            onClick: (info, event) => {
               const id = (info.object as Point | undefined)?.id;
-              if (id) selectionStore.getState().selectOnly(id);
+              if (!id) return;
+              const shift = (event?.srcEvent as MouseEvent | undefined)?.shiftKey ?? false;
+              if (shift) selectionStore.getState().toggle(id);
+              else selectionStore.getState().selectOnly(id);
             },
             onHover: (info) => {
               const id = (info.object as Point | undefined)?.id;
