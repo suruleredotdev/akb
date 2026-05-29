@@ -34,6 +34,10 @@ export interface PaneViewState {
   rotationOrbit?: number;
 }
 
+export interface TextFrameConfig {
+  pinnedDocId: NodeId | null;
+}
+
 export interface ViewState {
   level: Level;
   colorBy: ColorBy;
@@ -45,12 +49,16 @@ export interface ViewState {
   // Per-frame type config
   frameConfigs: Partial<Record<FrameType, FrameConfig>>;
 
+  // Per-pane text frame pinned document (keyed by mosaic path joined with ':')
+  textPinned: Record<string, NodeId | null>;
+
   setLevel: (l: Level) => void;
   setColorBy: (c: ColorBy) => void;
   drillInto: (id: NodeId, childLevel: Level) => void;
   drillOut: () => void;
   setPaneViewState: (frame: FrameType, state: PaneViewState) => void;
   setFrameConfig: (frame: FrameType, config: Partial<FrameConfig>) => void;
+  setPinnedDoc: (paneId: string, docId: NodeId | null) => void;
 }
 
 const LEVEL_ORDER: Record<Level, number> = { document: 0, chunk: 1, expression: 2 };
@@ -68,6 +76,7 @@ export const viewStore = createStore<ViewState>()(
       scope: 'global',
       paneViewStates: {},
       frameConfigs: { ...DEFAULT_FRAME_CONFIGS },
+      textPinned: {},
 
       setLevel: (newLevel) => {
         const currentLevel = get().level;
@@ -124,6 +133,11 @@ export const viewStore = createStore<ViewState>()(
             [frame]: { ...(s.frameConfigs[frame] ?? {}), ...config },
           },
         })),
+
+      setPinnedDoc: (paneId, docId) =>
+        set((s) => ({
+          textPinned: { ...s.textPinned, [paneId]: docId },
+        })),
     }),
     {
       name: 'kb-viz:view',
@@ -132,6 +146,7 @@ export const viewStore = createStore<ViewState>()(
         colorBy: s.colorBy,
         paneViewStates: s.paneViewStates,
         frameConfigs: s.frameConfigs,
+        textPinned: s.textPinned,
       }),
     },
   ),
