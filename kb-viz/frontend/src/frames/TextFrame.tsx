@@ -179,7 +179,10 @@ function PinBar({ paneId, docLabel }: { paneId: string; docLabel?: string }) {
   const pinned    = useStore(viewStore, (s) => s.textPinned[paneId] ?? null);
 
   const docIds = byType.get('document') ?? [];
-  const docs   = docIds.map((id) => nodesById.get(id)).filter((n): n is Node => n != null);
+  const docs   = docIds
+    .map((id) => nodesById.get(id))
+    .filter((n): n is Node => n != null)
+    .sort((a, b) => deriveLabel(a).localeCompare(deriveLabel(b)));
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     viewStore.getState().setPinnedDoc(paneId, e.target.value || null);
@@ -194,7 +197,7 @@ function PinBar({ paneId, docLabel }: { paneId: string; docLabel?: string }) {
         onChange={handleChange}
         title="Pin this panel to a document"
       >
-        <option value="">— follow selection —</option>
+        <option value="">pin document to text frame…</option>
         {docs.map((doc) => (
           <option key={doc.id} value={doc.id}>
             {docLabel && doc.id === pinned ? `📌 ${docLabel}` : deriveLabel(doc)}
