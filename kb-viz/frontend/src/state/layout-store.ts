@@ -17,7 +17,8 @@ export type FrameType =
   | 'graph'
   | 'search'
   | 'entity'
-  | 'summary';
+  | 'summary'
+  | 'llm';
 
 // ---------------------------------------------------------------------------
 // Mosaic-compatible pane tree (binary split tree)
@@ -43,13 +44,18 @@ export function isLeaf(node: PaneNode): node is FrameType {
 const PRESETS: Record<string, PaneNode> = {
   '4-panel': {
     direction: 'row',
-    first: { direction: 'column', first: 'semantic', second: 'timeline' },
+    first: { direction: 'column', first: 'text', second: 'summary' },
     second: {
-      direction: 'column',
-      first: { direction: 'row', first: 'map', second: 'chart' },
-      second: 'text',
+      direction: 'row',
+      first: {
+        direction: 'column',
+        first: { direction: 'row', first: 'map', second: 'timeline', splitPercentage: 55 },
+        second: 'semantic',
+      },
+      second: 'llm',
+      splitPercentage: 65,
     },
-    splitPercentage: 40,
+    splitPercentage: 30,
   },
   'map-focus': {
     direction: 'row',
@@ -61,6 +67,12 @@ const PRESETS: Record<string, PaneNode> = {
     direction: 'row',
     first: 'text',
     second: { direction: 'column', first: 'semantic', second: 'map' },
+    splitPercentage: 55,
+  },
+  'llm-focus': {
+    direction: 'row',
+    first: { direction: 'column', first: 'semantic', second: 'text' },
+    second: 'llm',
     splitPercentage: 55,
   },
   single: 'semantic',
