@@ -187,11 +187,12 @@ ${focusedLines}
 ${digestLines}
 
 ## Your tools
+- get_nodes_content(ids): read full text + annotations for multiple nodes at once — use this first when comparing or summarizing several nodes
 - select_nodes(ids): highlight nodes across all frames
-- focus_node(id): open a node in the text panel
+- focus_node(id): open a single node in the text panel (for drawing the user's attention; not for bulk reading)
 - set_view_level(level): switch between document / chunk / expression
 
-When using tools, briefly explain what you're doing and why. Reference nodes by label in prose, use IDs only in tool calls. Be concise.`;
+Prefer get_nodes_content over repeated focus_node calls when you need to read content. Reference nodes by label in prose, use IDs only in tool calls. Briefly explain what you're doing before each tool use.`;
 }
 
 // ---------------------------------------------------------------------------
