@@ -55,6 +55,32 @@ const TOOLS = [
     },
   },
   {
+    name: 'search_nodes',
+    description: 'Search nodes by text content or label (case-insensitive substring match). Returns matching node IDs and labels.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        query:     { type: 'string', description: 'Text to search for' },
+        node_type: { type: 'string', description: 'Optional: filter by node type (document, chunk, expression)' },
+        limit:     { type: 'number', description: 'Max results to return (default 20, max 50)' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'find_similar_nodes',
+    description: 'Find nodes semantically similar to a reference node using stored embeddings (cosine similarity). Only works if the reference node has an embedding.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        id:        { type: 'string', description: 'Reference node ID' },
+        node_type: { type: 'string', description: 'Optional: filter results by node type' },
+        limit:     { type: 'number', description: 'Max results (default 10, max 30)' },
+      },
+      required: ['id'],
+    },
+  },
+  {
     name: 'select_nodes',
     description: 'Highlight one or more nodes across all visualization frames by selecting them. Use this to point the user to relevant items.',
     input_schema: {
@@ -108,6 +134,50 @@ function executeTool(name: string, input: Record<string, unknown>, nodesById: Ma
         return `[${id}] ${deriveLabel(n, 60)} (${n.type})\n${text}${annSummary}`;
       });
       return parts.join('\n\n---\n\n');
+    }
+    case 'search_nodes': {
+      const query = ((input.query as string) ?? '').toLowerCase();
+      if (!query) return 'No query provided.';
+      const nodeType = input.node_type as string | undefined;
+      const limit = Math.min(Number(input.limit ?? 20), 50);
+      const results: Node[] = [];
+      for (const [, node] of nodesById) {
+        if (nodeType && node.type !== nodeType) continue;
+        if (
+          node.text?.toLowerCase().includes(query) ||
+          deriveLabel(node).toLowerCase().includes(query)
+        ) {
+          results.push(node);
+          if (results.length >= limit) break;
+        }
+      }
+      if (results.length === 0) return `No nodes found matching "${input.query}".`;
+      return `Found ${results.length} node(s) matching "${input.query}":\n` +
+        results.map((n) => `- [${n.id}] ${deriveLabel(n, 60)} (${n.type})`).join('\n');
+    }
+    case 'find_similar_nodes': {
+      const refId = input.id as string;
+      const refNode = nodesById.get(refId);
+      if (!refNode) return `Node ${refId} not found.`;
+      if (!refNode.embedding?.length) return `Node ${refId} has no embedding — cannot compute similarity.`;
+      const nodeType = input.node_type as string | undefined;
+      const limit = Math.min(Number(input.limit ?? 10), 30);
+      const refEmb = refNode.embedding;
+      const refNorm = Math.sqrt(refEmb.reduce((s, v) => s + v * v, 0));
+      const scored: { node: Node; score: number }[] = [];
+      for (const [id, node] of nodesById) {
+        if (id === refId) continue;
+        if (nodeType && node.type !== nodeType) continue;
+        if (!node.embedding || node.embedding.length !== refEmb.length) continue;
+        const dot  = node.embedding.reduce((s, v, i) => s + v * refEmb[i], 0);
+        const norm = Math.sqrt(node.embedding.reduce((s, v) => s + v * v, 0));
+        scored.push({ node, score: dot / (refNorm * norm + 1e-8) });
+      }
+      scored.sort((a, b) => b.score - a.score);
+      const top = scored.slice(0, limit);
+      if (top.length === 0) return 'No nodes with compatible embeddings found.';
+      return `Top ${top.length} similar to "${deriveLabel(refNode, 40)}":\n` +
+        top.map((s) => `- [${s.node.id}] ${deriveLabel(s.node, 60)} (${s.node.type}) — sim: ${s.score.toFixed(3)}`).join('\n');
     }
     case 'select_nodes': {
       const ids = (input.ids as string[]) ?? [];
@@ -188,11 +258,13 @@ ${digestLines}
 
 ## Your tools
 - get_nodes_content(ids): read full text + annotations for multiple nodes at once — use this first when comparing or summarizing several nodes
+- search_nodes(query, node_type?, limit?): find nodes by text/label substring match — use this when the user asks about a topic or keyword
+- find_similar_nodes(id, node_type?, limit?): find semantically similar nodes via embedding cosine similarity — use this to discover related content
 - select_nodes(ids): highlight nodes across all frames
 - focus_node(id): open a single node in the text panel (for drawing the user's attention; not for bulk reading)
 - set_view_level(level): switch between document / chunk / expression
 
-Prefer get_nodes_content over repeated focus_node calls when you need to read content. Reference nodes by label in prose, use IDs only in tool calls. Briefly explain what you're doing before each tool use.`;
+Prefer get_nodes_content over repeated focus_node calls when you need to read content. Use search_nodes to locate relevant nodes before reading them. Reference nodes by label in prose, use IDs only in tool calls. Briefly explain what you're doing before each tool use.`;
 }
 
 // ---------------------------------------------------------------------------
@@ -295,18 +367,16 @@ function useApiKey() {
 }
 
 // ---------------------------------------------------------------------------
-// Suggestion chips derived from selection state
+// Suggestion chips — static fallbacks + LLM-generated variants
 // ---------------------------------------------------------------------------
 
-function buildSuggestions(
+function buildStaticSuggestions(
   selected: Set<NodeId>,
   focused: NodeId | null,
   nodesById: Map<NodeId, Node>,
 ): string[] {
   const chips: string[] = [];
   if (selected.size > 0) {
-    const sample = nodesById.get([...selected][0]);
-    const lbl = sample ? deriveLabel(sample, 30) : 'selected nodes';
     chips.push(`Summarize the selected nodes`);
     chips.push(`What themes connect these selections?`);
     if (selected.size > 1) chips.push(`Compare these ${selected.size} items`);
@@ -314,6 +384,7 @@ function buildSuggestions(
   if (focused) {
     const n = nodesById.get(focused);
     if (n?.child_ids.length) chips.push(`Explore the children of "${deriveLabel(n, 25)}"`);
+    else chips.push(`Find nodes similar to "${deriveLabel(n ?? ({ id: focused } as Node), 25)}"`);
   }
   if (chips.length === 0) {
     chips.push(`What's in this knowledge base?`);
@@ -321,6 +392,36 @@ function buildSuggestions(
     chips.push(`Suggest what to explore first`);
   }
   return chips.slice(0, 4);
+}
+
+async function generateSuggestions(
+  apiKey: string,
+  systemPrompt: string,
+): Promise<string[]> {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 256,
+      system: systemPrompt,
+      messages: [{
+        role: 'user',
+        content: 'Generate exactly 4 short, specific exploration questions (each under 10 words) a user might ask about this knowledge base given the current context. Output ONLY a JSON array of strings, no explanation.',
+      }],
+    }),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json() as { content?: Array<{ type: string; text?: string }> };
+  const text = data.content?.find((b) => b.type === 'text')?.text ?? '';
+  const match = text.match(/\[[\s\S]*\]/);
+  if (!match) return [];
+  return (JSON.parse(match[0]) as string[]).slice(0, 4);
 }
 
 // ---------------------------------------------------------------------------
@@ -385,18 +486,38 @@ function ChatView({ apiKey, onClearKey }: { apiKey: string; onClearKey: () => vo
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(true);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const suggestTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const systemPrompt = useMemo(() => buildSystemPrompt(
     manifest?.label ?? '',
     byType, nodesById, byParent, selected, focused, visited, level,
   ), [manifest, byType, nodesById, byParent, selected, focused, visited, level]);
 
-  const suggestions = useMemo(
-    () => buildSuggestions(selected, focused, nodesById),
+  const staticSuggestions = useMemo(
+    () => buildStaticSuggestions(selected, focused, nodesById),
     [selected, focused, nodesById],
   );
+
+  // Auto-generate suggestions (debounced) when selection/focus changes
+  useEffect(() => {
+    setSuggestions(staticSuggestions);
+    if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current);
+    suggestTimerRef.current = setTimeout(async () => {
+      setSuggestionsLoading(true);
+      try {
+        const generated = await generateSuggestions(apiKey, systemPrompt);
+        if (generated.length > 0) setSuggestions(generated);
+      } catch { /* keep static */ }
+      finally { setSuggestionsLoading(false); }
+    }, 800);
+    return () => { if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, focused]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -478,9 +599,9 @@ function ChatView({ apiKey, onClearKey }: { apiKey: string; onClearKey: () => vo
       {/* Message list */}
       <div className="llm-messages">
         {messages.length === 0 && (
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', marginTop: 32, lineHeight: 1.6 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', marginTop: 48, lineHeight: 1.6 }}>
             Ask about the knowledge base.<br />
-            I can see your current selection and focused node.
+            I can see your selection, focused node, and all visualization context.
           </div>
         )}
         {messages.map((msg) => (
@@ -509,14 +630,23 @@ function ChatView({ apiKey, onClearKey }: { apiKey: string; onClearKey: () => vo
         <div ref={bottomRef} />
       </div>
 
-      {/* Suggestion chips */}
-      {messages.length === 0 && (
-        <div className="llm-suggestions">
-          {suggestions.map((s) => (
-            <button key={s} className="llm-chip" onClick={() => send(s)}>{s}</button>
-          ))}
-        </div>
-      )}
+      {/* Suggestion chips — always visible, collapsible */}
+      <div className="llm-suggestions-bar">
+        <button
+          className="llm-suggestions-toggle"
+          onClick={() => setSuggestionsOpen((o) => !o)}
+          title={suggestionsOpen ? 'Hide suggestions' : 'Show suggestions'}
+        >
+          {suggestionsLoading ? '⟳' : '✦'} suggestions {suggestionsOpen ? '▴' : '▾'}
+        </button>
+        {suggestionsOpen && (
+          <div className="llm-suggestions">
+            {suggestions.map((s) => (
+              <button key={s} className="llm-chip" onClick={() => send(s)}>{s}</button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Input */}
       <div className="llm-input-row">
