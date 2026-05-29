@@ -44,13 +44,13 @@ export function isLeaf(node: PaneNode): node is FrameType {
 const PRESETS: Record<string, PaneNode> = {
   '4-panel': {
     direction: 'row',
-    first: { direction: 'column', first: 'semantic', second: 'timeline' },
+    first: { direction: 'column', first: 'text', second: 'summary' },
     second: {
       direction: 'row',
       first: {
         direction: 'column',
-        first: { direction: 'row', first: 'map', second: 'summary', splitPercentage: 55 },
-        second: 'text',
+        first: { direction: 'row', first: 'map', second: 'timeline', splitPercentage: 55 },
+        second: 'semantic',
       },
       second: 'llm',
       splitPercentage: 65,
