@@ -39,7 +39,21 @@ interface DisplayMsg {
 // Tool definitions exposed to the LLM
 // ---------------------------------------------------------------------------
 
+/** Maximum number of agentic tool-call turns before we stop the loop. */
+const MAX_TOOL_TURNS = 15;
+
 const TOOLS = [
+  {
+    name: 'get_nodes_content',
+    description: 'Retrieve the full text and annotations for one or more nodes by ID. Use this to read node content before comparing or summarizing — prefer this over calling focus_node repeatedly.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        ids: { type: 'array', items: { type: 'string' }, description: 'Node IDs to read (max 20)' },
+      },
+      required: ['ids'],
+    },
+  },
   {
     name: 'select_nodes',
     description: 'Highlight one or more nodes across all visualization frames by selecting them. Use this to point the user to relevant items.',
@@ -53,7 +67,7 @@ const TOOLS = [
   },
   {
     name: 'focus_node',
-    description: 'Focus a single node so its full text and annotations appear in the text panel.',
+    description: 'Focus a single node so its full text and annotations appear in the text panel. Use this to draw the user\'s attention to one specific node. To read multiple nodes, use get_nodes_content instead.',
     input_schema: {
       type: 'object' as const,
       properties: {
@@ -81,6 +95,20 @@ const TOOLS = [
 
 function executeTool(name: string, input: Record<string, unknown>, nodesById: Map<NodeId, Node>): string {
   switch (name) {
+    case 'get_nodes_content': {
+      const ids = ((input.ids as string[]) ?? []).slice(0, 20);
+      if (ids.length === 0) return 'No node IDs provided.';
+      const parts = ids.map((id) => {
+        const n = nodesById.get(id);
+        if (!n) return `[${id}]: not found`;
+        const text = n.text ? n.text.slice(0, 1200) + (n.text.length > 1200 ? '…' : '') : '(no text)';
+        const annSummary = n.annotations.length > 0
+          ? `\nAnnotations (${n.annotations.length}): ${n.annotations.slice(0, 5).map((a) => a.type).join(', ')}`
+          : '';
+        return `[${id}] ${deriveLabel(n, 60)} (${n.type})\n${text}${annSummary}`;
+      });
+      return parts.join('\n\n---\n\n');
+    }
     case 'select_nodes': {
       const ids = (input.ids as string[]) ?? [];
       if (ids.length === 0) return 'No nodes to select.';
@@ -397,7 +425,7 @@ function ChatView({ apiKey, onClearKey }: { apiKey: string; onClearKey: () => vo
       const allToolCalls: { name: string; summary: string }[] = [];
 
       // Agentic loop: keep going until no more tool calls
-      for (let turn = 0; turn < 5; turn++) {
+      for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
         const blocks = await callClaude(apiKey, loopHistory, systemPrompt, (delta) => {
           accText += delta;
           setMessages((prev) => prev.map((m) =>
