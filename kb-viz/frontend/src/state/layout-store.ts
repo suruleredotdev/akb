@@ -17,7 +17,8 @@ export type FrameType =
   | 'graph'
   | 'search'
   | 'entity'
-  | 'summary';
+  | 'summary'
+  | 'llm';
 
 // ---------------------------------------------------------------------------
 // Mosaic-compatible pane tree (binary split tree)
@@ -61,6 +62,12 @@ const PRESETS: Record<string, PaneNode> = {
     direction: 'row',
     first: 'text',
     second: { direction: 'column', first: 'semantic', second: 'map' },
+    splitPercentage: 55,
+  },
+  'llm-focus': {
+    direction: 'row',
+    first: { direction: 'column', first: 'semantic', second: 'text' },
+    second: 'llm',
     splitPercentage: 55,
   },
   single: 'semantic',

@@ -13,10 +13,10 @@ import type { FrameType } from './state/layout-store';
 // Register all frames with the registry
 import './frames/index';
 
-const BUILTIN_PRESETS = ['4-panel', 'map-focus', 'text-focus', 'single'];
+const BUILTIN_PRESETS = ['4-panel', 'map-focus', 'text-focus', 'llm-focus', 'single'];
 const BUILTIN_LABELS: Record<string, string> = {
   '4-panel': '4-panel', 'map-focus': 'map focus',
-  'text-focus': 'text focus', 'single': 'single',
+  'text-focus': 'text focus', 'llm-focus': 'llm focus', 'single': 'single',
 };
 
 export function App() {
@@ -155,7 +155,7 @@ function LayoutMenu() {
   );
 }
 
-const ADDABLE_FRAMES: FrameType[] = ['semantic', 'map', 'timeline', 'chart', 'text', 'graph', 'summary'];
+const ADDABLE_FRAMES: FrameType[] = ['semantic', 'map', 'timeline', 'chart', 'text', 'graph', 'summary', 'llm'];
 
 function AddFrameButton() {
   return (
