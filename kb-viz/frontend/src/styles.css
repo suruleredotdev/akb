@@ -211,10 +211,12 @@ body {
 .text-frame {
   border-left: var(--border-width) solid var(--border);
   padding: 14px;
+  height: 100%;
   overflow-y: auto;
   background: var(--surface);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 .text-frame h3 {
   margin: 0 0 4px;
@@ -245,6 +247,47 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.6px;
   font-weight: 600;
+}
+
+/* ── TextFrame pin bar & comparison mode ─────────────────────────────────── */
+.text-frame-pin-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.text-frame-pin-doc-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+.text-frame-chunk {
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 120ms, background 120ms;
+}
+.text-frame-chunk:hover {
+  border-color: var(--border-light);
+  background: var(--accent-dim);
+}
+.text-frame-chunk-focused {
+  border-color: var(--selected);
+  background: rgba(240, 80, 40, 0.07);
+}
+.text-frame-chunk-id {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-family: ui-monospace, monospace;
+  margin-bottom: 5px;
+  user-select: all;
 }
 
 /* ── Annotation span highlights ───────────────────────────────────────────── */

@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
-import { Mosaic, MosaicWindow, type MosaicNode } from 'react-mosaic-component';
+import { Mosaic, MosaicWindow, type MosaicNode, type MosaicPath, updateTree, createRemoveUpdate } from 'react-mosaic-component';
 import 'react-mosaic-component/react-mosaic-component.css';
 
 import { useStore } from '../lib/use-store';
-import { layoutStore, type FrameType } from '../state/layout-store';
+import { layoutStore, type FrameType, type PaneNode } from '../state/layout-store';
 import { getFrame } from '../frames/registry';
 import { NodeTooltip } from './NodeTooltip';
 
@@ -34,15 +34,16 @@ export function AppShell() {
       <Mosaic<FrameType>
         renderTile={(type, path) => {
           const Frame = getFrame(type);
+          const paneId = path.length > 0 ? path.join(':') : type;
           return (
             <MosaicWindow<FrameType>
               path={path}
               title={FRAME_LABELS[type] ?? type}
-              toolbarControls={<FrameControls type={type} />}
+              toolbarControls={<FrameControls type={type} path={path} />}
               createNode={() => 'text' as FrameType}
             >
               {/* Width/height passed as 0 — frames that use them fall back to el.clientWidth */}
-              <Frame paneId={type} width={0} height={0} />
+              <Frame paneId={paneId} width={0} height={0} />
             </MosaicWindow>
           );
         }}
@@ -55,7 +56,7 @@ export function AppShell() {
   );
 }
 
-function FrameControls({ type }: { type: FrameType }) {
+function FrameControls({ type, path }: { type: FrameType; path: MosaicPath }) {
   return (
     <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
       <button
@@ -71,7 +72,11 @@ function FrameControls({ type }: { type: FrameType }) {
       <button
         className="btn-ghost"
         title="Close frame"
-        onClick={() => layoutStore.getState().removeFrame(type)}
+        onClick={() => {
+          const root = layoutStore.getState().root as MosaicNode<FrameType>;
+          const next = updateTree(root, [createRemoveUpdate(root, path)]);
+          layoutStore.getState().setRoot((next ?? 'semantic') as PaneNode);
+        }}
       >
         ✕
       </button>

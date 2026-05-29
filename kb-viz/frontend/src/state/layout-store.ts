@@ -63,6 +63,12 @@ const PRESETS: Record<string, PaneNode> = {
     second: { direction: 'column', first: 'semantic', second: 'map' },
     splitPercentage: 55,
   },
+  'comparison': {
+    direction: 'row',
+    first: 'text',
+    second: 'text',
+    splitPercentage: 50,
+  },
   single: 'semantic',
 };
 

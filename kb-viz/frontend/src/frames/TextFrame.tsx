@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { useStore } from '../lib/use-store';
 import { dataStore, getAncestors } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
@@ -10,36 +10,78 @@ import {
   isTemporal,
   type Annotation,
   type Node,
+  type NodeId,
   type PropertyValue,
 } from '../types/manifest';
 
 import { deriveLabel } from '../lib/derive-label';
 import type { FrameProps } from './registry';
-export function TextFrame(_props: FrameProps) {
-  const nodesById = useStore(dataStore, (s) => s.nodes);
-  const focused = useStore(selectionStore, (s) => s.focused);
+
+export function TextFrame({ paneId }: FrameProps) {
+  const nodesById   = useStore(dataStore, (s) => s.nodes);
+  const focused     = useStore(selectionStore, (s) => s.focused);
+  const pinnedDocId = useStore(viewStore, (s) => s.textPinned[paneId] ?? null);
+
+  if (pinnedDocId) {
+    return <PinnedDocView docId={pinnedDocId} paneId={paneId} />;
+  }
+
+  return (
+    <UnpinnedView
+      paneId={paneId}
+      nodesById={nodesById}
+      focused={focused}
+    />
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Unpinned (follow-selection) mode
+// ---------------------------------------------------------------------------
+
+function UnpinnedView({
+  paneId,
+  nodesById,
+  focused,
+}: {
+  paneId: string;
+  nodesById: Map<string, Node>;
+  focused: string | null;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // #41: scroll focused node into view when selection changes externally
+  useEffect(() => {
+    if (!focused || !containerRef.current) return;
+    const el = containerRef.current.querySelector(`[data-node-id="${CSS.escape(focused)}"]`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [focused]);
 
   if (!focused) {
     return (
-      <div className="text-frame">
+      <div className="text-frame" ref={containerRef}>
+        <PinBar paneId={paneId} />
         <div className="frame-empty">
           Select a node from any frame to see its text and annotations
         </div>
       </div>
     );
   }
+
   const node = nodesById.get(focused);
   if (!node) {
     return (
-      <div className="text-frame">
+      <div className="text-frame" ref={containerRef}>
+        <PinBar paneId={paneId} />
         <div className="frame-empty">Node not found: {focused}</div>
       </div>
     );
   }
 
   return (
-    <div className="text-frame">
-      <h3 title={node.id}>{deriveLabel(node)}</h3>
+    <div className="text-frame" ref={containerRef}>
+      <PinBar paneId={paneId} />
+      <h3 data-node-id={node.id} title={node.id}>{deriveLabel(node)}</h3>
       <div className="meta">
         <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10, color: 'var(--text-muted)', userSelect: 'all' }}>{node.id}</span>
         {' · '}type: <strong>{node.type}</strong>
@@ -56,6 +98,131 @@ export function TextFrame(_props: FrameProps) {
     </div>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Pinned (comparison) mode — shows all chunks of a fixed document
+// ---------------------------------------------------------------------------
+
+function PinnedDocView({ docId, paneId }: { docId: NodeId; paneId: string }) {
+  const nodesById = useStore(dataStore, (s) => s.nodes);
+  const focused   = useStore(selectionStore, (s) => s.focused);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const doc    = nodesById.get(docId);
+  const chunks = (doc?.child_ids ?? [])
+    .map((id) => nodesById.get(id))
+    .filter((n): n is Node => n != null);
+
+  // #41: scroll to focused chunk within the pinned panel
+  useEffect(() => {
+    if (!focused || !containerRef.current) return;
+    const el = containerRef.current.querySelector(`[data-node-id="${CSS.escape(focused)}"]`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [focused]);
+
+  if (!doc) {
+    return (
+      <div className="text-frame">
+        <PinBar paneId={paneId} />
+        <div className="frame-empty">Pinned document not found</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="text-frame text-frame-pinned" ref={containerRef}>
+      <PinBar paneId={paneId} docLabel={deriveLabel(doc)} />
+
+      <div className="text-frame-pin-doc-header" data-node-id={doc.id}>
+        <span className="type-badge">{doc.type}</span>
+        <h3 style={{ margin: 0 }} title={doc.id}>{deriveLabel(doc)}</h3>
+      </div>
+
+      {chunks.length === 0 && (
+        <div className="frame-empty" style={{ height: 'auto', padding: '16px 0' }}>
+          No child nodes
+        </div>
+      )}
+
+      {chunks.map((chunk) => {
+        const isFocused = focused === chunk.id;
+        return (
+          <div
+            key={chunk.id}
+            data-node-id={chunk.id}
+            className={`text-frame-chunk${isFocused ? ' text-frame-chunk-focused' : ''}`}
+            onClick={() => selectionStore.getState().selectOnly(chunk.id)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && selectionStore.getState().selectOnly(chunk.id)}
+          >
+            <div className="text-frame-chunk-id">{chunk.id}</div>
+            {chunk.text ? (
+              <div className="body">{renderHighlighted(chunk)}</div>
+            ) : (
+              <div className="body" style={{ color: '#6b7280' }}>(no text)</div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Pin toolbar — document picker + unpin
+// ---------------------------------------------------------------------------
+
+function PinBar({ paneId, docLabel }: { paneId: string; docLabel?: string }) {
+  const byType    = useStore(dataStore, (s) => s.byType);
+  const nodesById = useStore(dataStore, (s) => s.nodes);
+  const pinned    = useStore(viewStore, (s) => s.textPinned[paneId] ?? null);
+
+  const docIds = byType.get('document') ?? [];
+  const docs = (docIds
+    .map((id) => nodesById.get(id))
+    .filter((n): n is Node => n != null) as Node[])
+    .map((n) => ({ node: n, key: deriveLabel(n).replace(/^[^a-zA-Z0-9]+/, '').toLowerCase() }))
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+    .map(({ node }) => node);
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    viewStore.getState().setPinnedDoc(paneId, e.target.value || null);
+  };
+
+  return (
+    <div className="text-frame-pin-bar">
+      <select
+        className="ctrl-select"
+        style={{ flex: 1, fontSize: 11 }}
+        value={pinned ?? ''}
+        onChange={handleChange}
+        title="Pin this panel to a document"
+      >
+        <option value="">pin document to text frame…</option>
+        {docs.map((doc) => (
+          <option key={doc.id} value={doc.id}>
+            {docLabel && doc.id === pinned ? `📌 ${docLabel}` : deriveLabel(doc)}
+          </option>
+        ))}
+      </select>
+      {pinned && (
+        <button
+          className="btn-ghost"
+          style={{ fontSize: 11, padding: '2px 6px' }}
+          title="Unpin"
+          onClick={() => viewStore.getState().setPinnedDoc(paneId, null)}
+        >
+          ✕
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Shared sub-components
+// ---------------------------------------------------------------------------
 
 function NodeNav({ node, nodesById }: { node: Node; nodesById: Map<string, Node> }) {
   const manifest = useStore(dataStore, (s) => s.manifest);
