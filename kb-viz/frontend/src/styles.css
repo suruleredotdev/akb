@@ -211,10 +211,12 @@ body {
 .text-frame {
   border-left: var(--border-width) solid var(--border);
   padding: 14px;
+  height: 100%;
   overflow-y: auto;
   background: var(--surface);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 .text-frame h3 {
   margin: 0 0 4px;
