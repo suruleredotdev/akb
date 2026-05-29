@@ -46,11 +46,16 @@ const PRESETS: Record<string, PaneNode> = {
     direction: 'row',
     first: { direction: 'column', first: 'semantic', second: 'timeline' },
     second: {
-      direction: 'column',
-      first: { direction: 'row', first: 'map', second: 'chart' },
-      second: 'text',
+      direction: 'row',
+      first: {
+        direction: 'column',
+        first: { direction: 'row', first: 'map', second: 'summary', splitPercentage: 55 },
+        second: 'text',
+      },
+      second: 'llm',
+      splitPercentage: 65,
     },
-    splitPercentage: 40,
+    splitPercentage: 30,
   },
   'map-focus': {
     direction: 'row',
