@@ -179,10 +179,12 @@ function PinBar({ paneId, docLabel }: { paneId: string; docLabel?: string }) {
   const pinned    = useStore(viewStore, (s) => s.textPinned[paneId] ?? null);
 
   const docIds = byType.get('document') ?? [];
-  const docs   = docIds
+  const docs = (docIds
     .map((id) => nodesById.get(id))
-    .filter((n): n is Node => n != null)
-    .sort((a, b) => deriveLabel(a).localeCompare(deriveLabel(b)));
+    .filter((n): n is Node => n != null) as Node[])
+    .map((n) => ({ node: n, key: deriveLabel(n).replace(/^[^a-zA-Z0-9]+/, '').toLowerCase() }))
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+    .map(({ node }) => node);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     viewStore.getState().setPinnedDoc(paneId, e.target.value || null);
