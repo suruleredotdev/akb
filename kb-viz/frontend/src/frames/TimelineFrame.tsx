@@ -1,9 +1,9 @@
-import { useMemo, useState, useCallback, useRef } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import DeckGL from '@deck.gl/react';
 import { ScatterplotLayer, LineLayer, TextLayer } from '@deck.gl/layers';
-import { OrthographicView } from '@deck.gl/core';
+import { OrthographicView, LinearInterpolator } from '@deck.gl/core';
 import { useStore } from '../lib/use-store';
-import { useScopedIds } from '../lib/use-scoped-ids';
+import { useEffectiveIds } from '../lib/use-effective-ids';
 import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
@@ -39,12 +39,14 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
   const colorBy     = useStore(viewStore, (s) => s.colorBy);
   const selected    = useStore(selectionStore, (s) => s.selected);
   const hovered     = useStore(selectionStore, (s) => s.hovered);
-  const scopedIds   = useScopedIds(level);
+  const focused     = useStore(selectionStore, (s) => s.focused);
+  const effectiveIds = useEffectiveIds(level);
   const dateRange   = useStore(filterStore, (s) => s.dateRange);
 
   // Brush state: [startX, endX] in data space (ms) + whether shift was held at drag start
   const [brush, setBrush] = useState<[number, number] | null>(null);
   const brushShiftRef = useRef(false);
+  const [timelineViewState, setTimelineViewState] = useState<object | null>(null);
 
   const encode = useMemo(
     () => makeColorEncoder(nodesById, nodeTypes, colorBy),
@@ -52,12 +54,12 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
   );
 
   const points = useMemo<Point[]>(() => {
-    const ns = scopedIds.map((id) => nodesById.get(id)).filter((n): n is NonNullable<typeof n> => n != null);
+    const ns = effectiveIds.map((id) => nodesById.get(id)).filter((n): n is NonNullable<typeof n> => n != null);
     const positions = projectTimeline(ns, nodesById);
     return Array.from(positions.entries()).map(([id, p]) => ({
       id, x: p[0], y: hashId(id),
     }));
-  }, [nodesById, scopedIds]);
+  }, [nodesById, effectiveIds]);
 
   const { minX, maxX } = useMemo(() => {
     if (points.length === 0) return { minX: 0, maxX: 1 };
@@ -68,10 +70,32 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
   const ticks = useMemo(() => yearTicks(minX, maxX), [minX, maxX]);
 
   const padding = (maxX - minX) * 0.05 || 1e9;
-  const viewState = useMemo(() => ({
+  const defaultViewState = useMemo(() => ({
     target: [(minX + maxX) / 2, 0.5, 0] as [number, number, number],
     zoom: Math.log2((_w || 800) / ((maxX - minX + padding * 2) || 1)) - 1,
   }), [minX, maxX, padding, _w]);
+
+  // Initialise camera when data first arrives
+  const timelineInitDone = useRef(false);
+  useEffect(() => {
+    if (points.length === 0 || timelineInitDone.current) return;
+    timelineInitDone.current = true;
+    setTimelineViewState(defaultViewState);
+  }, [points, defaultViewState]);
+  useEffect(() => { timelineInitDone.current = false; }, [level]);
+
+  // Pan to focused node's temporal position
+  useEffect(() => {
+    if (!focused || points.length === 0) return;
+    const pt = points.find((p) => p.id === focused);
+    if (!pt) return;
+    setTimelineViewState((prev) => ({
+      ...(prev ?? defaultViewState),
+      target: [pt.x, 0.5, 0] as [number, number, number],
+      transitionDuration: 400,
+      transitionInterpolator: new LinearInterpolator(['target']),
+    }));
+  }, [focused, points, defaultViewState]);
 
   const getColor = useCallback((d: Point): [number, number, number, number] => {
     if (selected.has(d.id)) return [240, 80, 40, 255];
@@ -114,7 +138,8 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
     <div style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--surface)' }}>
     <DeckGL
       views={new OrthographicView({ id: 'timeline' })}
-      initialViewState={viewState}
+      viewState={timelineViewState ?? defaultViewState}
+      onViewStateChange={({ viewState: vs }) => setTimelineViewState(vs as object)}
       controller
       layers={[
         ...rangeBand,

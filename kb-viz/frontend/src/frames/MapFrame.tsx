@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import DeckGL from '@deck.gl/react';
 import { ScatterplotLayer, LineLayer, ArcLayer } from '@deck.gl/layers';
 import { HeatmapLayer } from '@deck.gl/aggregation-layers';
+import { FlyToInterpolator } from '@deck.gl/core';
 import { Map as MapGL } from 'react-map-gl/maplibre';
 import { useStore } from '../lib/use-store';
-import { useScopedIds } from '../lib/use-scoped-ids';
+import { useEffectiveIds } from '../lib/use-effective-ids';
 import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
@@ -42,7 +43,8 @@ export function MapFrame(_props: FrameProps) {
   const colorBy   = useStore(viewStore, (s) => s.colorBy);
   const selected  = useStore(selectionStore, (s) => s.selected);
   const hovered   = useStore(selectionStore, (s) => s.hovered);
-  const scopedIds = useScopedIds(level);
+  const focused   = useStore(selectionStore, (s) => s.focused);
+  const effectiveIds = useEffectiveIds(level);
 
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showArcs, setShowArcs] = useState(true);
@@ -54,15 +56,15 @@ export function MapFrame(_props: FrameProps) {
   );
 
   const points = useMemo<Point[]>(() => {
-    const ns = scopedIds.map((id) => nodesById.get(id)).filter((n): n is NonNullable<typeof n> => n != null);
+    const ns = effectiveIds.map((id) => nodesById.get(id)).filter((n): n is NonNullable<typeof n> => n != null);
     const positions = projectMap(ns, nodesById);
     return Array.from(positions.entries()).map(([id, p]) => ({
       id,
       position: [p[0], p[1]] as [number, number],
     }));
-  }, [nodesById, scopedIds]);
+  }, [nodesById, effectiveIds]);
 
-  const initialViewState = useMemo(() => {
+  const defaultViewState = useMemo(() => {
     if (points.length === 0) return { longitude: 0, latitude: 20, zoom: 1 };
     const lngs = points.map((p) => p.position[0]);
     const lats = points.map((p) => p.position[1]);
@@ -72,6 +74,36 @@ export function MapFrame(_props: FrameProps) {
       zoom: 3.5,
     };
   }, [points]);
+
+  const [mapViewState, setMapViewState] = useState<object>(() => ({
+    longitude: 0, latitude: 20, zoom: 1,
+  }));
+
+  // Initialise camera when points first load
+  const pointsLoaded = useRef(false);
+  useEffect(() => {
+    if (points.length === 0 || pointsLoaded.current) return;
+    pointsLoaded.current = true;
+    setMapViewState(defaultViewState);
+  }, [points, defaultViewState]);
+
+  // Fly to focused node's geo position
+  useEffect(() => {
+    if (!focused) return;
+    const node = nodesById.get(focused);
+    if (!node) return;
+    const posMap = projectMap([node], nodesById);
+    const pos = posMap.get(focused);
+    if (!pos) return;
+    setMapViewState((prev: object) => ({
+      ...prev,
+      longitude: pos[0],
+      latitude: pos[1],
+      zoom: Math.max(((prev as { zoom?: number }).zoom ?? 3), 7),
+      transitionDuration: 800,
+      transitionInterpolator: new FlyToInterpolator({ speed: 1.5 }),
+    }));
+  }, [focused, nodesById]);
 
   // Selected points with geo data (in selection order for arc drawing)
   const selectedPoints = useMemo(() => {
@@ -121,7 +153,8 @@ export function MapFrame(_props: FrameProps) {
       </div>
 
       <DeckGL
-        initialViewState={initialViewState}
+        viewState={mapViewState}
+        onViewStateChange={({ viewState: vs }) => setMapViewState(vs as object)}
         controller
         layers={[
           ...(showHeatmap ? [

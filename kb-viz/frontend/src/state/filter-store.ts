@@ -14,6 +14,7 @@ export interface FilterState {
   dateRange: DateRange | null;
   spatialPolygon: [number, number][] | null;
   textQuery: string;
+  filterToSelection: boolean;        // when true, canvas frames show only selected nodes
 
   // Derived
   activeIds: Set<NodeId>;
@@ -24,6 +25,7 @@ export interface FilterState {
   setDateRange: (range: DateRange | null) => void;
   setSpatialPolygon: (ring: [number, number][] | null) => void;
   setTextQuery: (q: string) => void;
+  setFilterToSelection: (v: boolean) => void;
   reset: () => void;
 }
 
@@ -103,6 +105,7 @@ export const filterStore = createStore<FilterState>()((set, get) => ({
   dateRange: null,
   spatialPolygon: null,
   textQuery: '',
+  filterToSelection: false,
   activeIds: new Set(dataStore.getState().nodes.keys()),
 
   setTypeFilter: (typeFilter) => set((s) => derive({ typeFilter }, s)),
@@ -119,6 +122,8 @@ export const filterStore = createStore<FilterState>()((set, get) => ({
   setSpatialPolygon: (spatialPolygon) => set((s) => derive({ spatialPolygon }, s)),
 
   setTextQuery: (textQuery) => set((s) => derive({ textQuery }, s)),
+
+  setFilterToSelection: (filterToSelection) => set({ filterToSelection }),
 
   reset: () =>
     set((s) =>

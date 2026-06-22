@@ -3,6 +3,7 @@ import { useStore } from '../lib/use-store';
 import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { historyStore } from '../state/history-store';
+import { filterStore } from '../state/filter-store';
 import { deriveLabel } from '../lib/derive-label';
 import { computeDigest } from '../lib/compute-digest';
 import type { Digest } from '../lib/compute-digest';
@@ -30,11 +31,12 @@ const S: Record<string, React.CSSProperties> = {
 const HISTORY_DIGEST_LIMIT = 20;
 
 export function SummaryFrame(_props: FrameProps) {
-  const nodesById = useStore(dataStore, (s) => s.nodes);
-  const byParent  = useStore(dataStore, (s) => s.byParent);
-  const selected  = useStore(selectionStore, (s) => s.selected);
-  const focused   = useStore(selectionStore, (s) => s.focused);
-  const visited   = useStore(historyStore, (s) => s.visited);
+  const nodesById         = useStore(dataStore, (s) => s.nodes);
+  const byParent          = useStore(dataStore, (s) => s.byParent);
+  const selected          = useStore(selectionStore, (s) => s.selected);
+  const focused           = useStore(selectionStore, (s) => s.focused);
+  const visited           = useStore(historyStore, (s) => s.visited);
+  const filterToSelection = useStore(filterStore, (s) => s.filterToSelection);
 
   const selectedNodes = useMemo(
     () => [...selected].map((id) => nodesById.get(id)).filter((n): n is Node => n != null),
@@ -91,19 +93,39 @@ export function SummaryFrame(_props: FrameProps) {
 
       {/* ── Current selection ── */}
       <div style={S.section}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
           <p style={{ ...S.heading, margin: 0 }}>
             selection · {selected.size}
             {selected.size === 0 && <span style={{ ...S.empty, fontStyle: 'normal', marginLeft: 6, fontSize: 9 }}>shift+click to add</span>}
           </p>
-          {selected.size > 0 && (
-            <button
-              style={{ ...S.navBtn, width: 'auto', fontSize: 10, color: 'var(--text-muted)', padding: '0 2px' }}
-              onClick={() => selectionStore.getState().clear()}
-            >
-              clear all
-            </button>
-          )}
+          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            {selected.size > 0 && (
+              <button
+                title={filterToSelection ? 'Show all nodes' : 'Filter frames to selection'}
+                style={{
+                  ...S.navBtn, width: 'auto', fontSize: 10, padding: '1px 6px',
+                  borderRadius: 3, border: 'var(--border-width) solid',
+                  borderColor: filterToSelection ? 'var(--accent)' : 'var(--border)',
+                  color: filterToSelection ? 'var(--accent)' : 'var(--text-muted)',
+                  background: filterToSelection ? 'var(--accent-dim)' : 'none',
+                }}
+                onClick={() => filterStore.getState().setFilterToSelection(!filterToSelection)}
+              >
+                ⊠ pin
+              </button>
+            )}
+            {selected.size > 0 && (
+              <button
+                style={{ ...S.navBtn, width: 'auto', fontSize: 10, color: 'var(--text-muted)', padding: '0 2px' }}
+                onClick={() => {
+                  selectionStore.getState().clear();
+                  filterStore.getState().setFilterToSelection(false);
+                }}
+              >
+                clear
+              </button>
+            )}
+          </div>
         </div>
         {selected.size === 0
           ? <span style={S.empty}>Nothing selected</span>

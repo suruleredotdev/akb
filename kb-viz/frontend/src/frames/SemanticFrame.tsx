@@ -1,9 +1,9 @@
 import { useMemo, useEffect, useRef, useState } from 'react';
 import DeckGL from '@deck.gl/react';
 import { ScatterplotLayer } from '@deck.gl/layers';
-import { OrthographicView, OrbitView } from '@deck.gl/core';
+import { OrthographicView, OrbitView, LinearInterpolator } from '@deck.gl/core';
 import { useStore } from '../lib/use-store';
-import { useScopedIds } from '../lib/use-scoped-ids';
+import { useEffectiveIds } from '../lib/use-effective-ids';
 import { dataStore } from '../state/data-store';
 import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
@@ -27,7 +27,8 @@ export function SemanticFrame(_props: FrameProps) {
   const colorBy   = useStore(viewStore, (s) => s.colorBy);
   const selected  = useStore(selectionStore, (s) => s.selected);
   const hovered   = useStore(selectionStore, (s) => s.hovered);
-  const scopedIds = useScopedIds(level);
+  const focused   = useStore(selectionStore, (s) => s.focused);
+  const effectiveIds = useEffectiveIds(level);
   const rawConfig = useStore(viewStore, (s) => s.frameConfigs['semantic']);
   const config    = (rawConfig ?? { mode: '2d', showKnnEdges: false, knnK: 5 }) as SemanticFrameConfig;
   const mode      = config.mode;
@@ -35,6 +36,8 @@ export function SemanticFrame(_props: FrameProps) {
   const [points, setPoints] = useState<Point[]>([]);
   const [computing, setComputing] = useState(false);
   const workerRef = useRef<Worker | null>(null);
+  const [deckViewState, setDeckViewState] = useState<object | null>(null);
+  const initialFitDone = useRef(false);
 
   const { deckRef, dragRect, onMouseDown } = useBoxSelect<Point>({
     extractId: (obj) => obj?.id,
@@ -52,7 +55,7 @@ export function SemanticFrame(_props: FrameProps) {
   const embInput = useMemo(() => {
     const ids: string[] = [];
     const embeddings: number[][] = [];
-    for (const id of scopedIds) {
+    for (const id of effectiveIds) {
       const n = nodesById.get(id);
       if (n && Array.isArray(n.embedding) && n.embedding.length > 0) {
         ids.push(id);
@@ -60,7 +63,7 @@ export function SemanticFrame(_props: FrameProps) {
       }
     }
     return { ids, embeddings };
-  }, [nodesById, scopedIds]);
+  }, [nodesById, effectiveIds]);
 
   useEffect(() => {
     if (embInput.embeddings.length === 0) {
@@ -105,18 +108,38 @@ export function SemanticFrame(_props: FrameProps) {
     };
   }, [embInput, mode]);
 
-  const initialViewState = useMemo(() => {
+  // Reset initial-fit flag when level or mode changes so camera re-centres on new data
+  useEffect(() => { initialFitDone.current = false; }, [level, mode]);
+
+  // Set camera to fit all points when they first arrive (or after level/mode change)
+  useEffect(() => {
+    if (points.length === 0 || initialFitDone.current) return;
+    initialFitDone.current = true;
     if (mode === '3d') {
-      return { target: [0, 0, 0] as [number, number, number], zoom: 0, rotationX: 20, rotationOrbit: 30 };
+      setDeckViewState({ target: [0, 0, 0], zoom: 0, rotationX: 20, rotationOrbit: 30 });
+    } else {
+      const xs = points.map((p) => p.position[0]);
+      const ys = points.map((p) => p.position[1]);
+      const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+      const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+      const range = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), 1);
+      setDeckViewState({ target: [cx, cy, 0], zoom: Math.log2(200 / range) });
     }
-    if (points.length === 0) return { target: [0, 0, 0] as [number, number, number], zoom: 0 };
-    const xs = points.map((p) => p.position[0]);
-    const ys = points.map((p) => p.position[1]);
-    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
-    const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
-    const range = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys), 1);
-    return { target: [cx, cy, 0] as [number, number, number], zoom: Math.log2(200 / range) };
   }, [points, mode]);
+
+  // Zoom to focused point when focus changes
+  useEffect(() => {
+    if (!focused || points.length === 0) return;
+    const pt = points.find((p) => p.id === focused);
+    if (!pt) return;
+    setDeckViewState((prev) => ({
+      ...(prev ?? {}),
+      target: [pt.position[0], pt.position[1], 0] as [number, number, number],
+      zoom: 4,
+      transitionDuration: 400,
+      transitionInterpolator: new LinearInterpolator(['target', 'zoom']),
+    }));
+  }, [focused, points]);
 
   if (embInput.embeddings.length === 0) {
     return (
@@ -166,7 +189,9 @@ export function SemanticFrame(_props: FrameProps) {
         ref={deckRef as any}
         key={mode}
         views={view}
-        initialViewState={initialViewState}
+        viewState={deckViewState ?? undefined}
+        initialViewState={deckViewState ? undefined : { target: [0, 0, 0] as [number,number,number], zoom: 0 }}
+        onViewStateChange={({ viewState: vs }) => setDeckViewState(vs as object)}
         controller
         layers={[
           new ScatterplotLayer<Point>({
