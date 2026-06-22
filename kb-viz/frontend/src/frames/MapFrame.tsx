@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import DeckGL from '@deck.gl/react';
-import { ScatterplotLayer, LineLayer, ArcLayer } from '@deck.gl/layers';
+import { ScatterplotLayer, LineLayer, ArcLayer, TextLayer } from '@deck.gl/layers';
 import { HeatmapLayer } from '@deck.gl/aggregation-layers';
 import { Map as MapGL } from 'react-map-gl/maplibre';
 import { useStore } from '../lib/use-store';
@@ -10,6 +10,7 @@ import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
 import { makeColorEncoder } from '../lib/color-encoder';
 import { projectMap } from '../projection/projectors/map';
+import { deriveLabel } from '../lib/derive-label';
 import type { FrameProps } from './registry';
 
 interface Point { id: string; position: [number, number]; }
@@ -47,6 +48,8 @@ export function MapFrame(_props: FrameProps) {
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showArcs, setShowArcs] = useState(true);
   const [showHull, setShowHull] = useState(true);
+  const [zoom, setZoom] = useState(3.5);
+  const LABEL_ZOOM = 6;
 
   const encode = useMemo(
     () => makeColorEncoder(nodesById, nodeTypes, colorBy),
@@ -122,6 +125,7 @@ export function MapFrame(_props: FrameProps) {
 
       <DeckGL
         initialViewState={initialViewState}
+        onViewStateChange={({ viewState: vs }) => setZoom((vs as { zoom?: number }).zoom ?? 3)}
         controller
         layers={[
           ...(showHeatmap ? [
@@ -163,6 +167,39 @@ export function MapFrame(_props: FrameProps) {
               widthUnits: 'pixels',
             }),
           ] : []),
+          new TextLayer<Point>({
+            id: 'map-labels',
+            data: zoom >= LABEL_ZOOM
+              ? points
+              : points.filter((p) => selected.has(p.id) || p.id === hovered),
+            getText: (d) => {
+              const n = nodesById.get(d.id);
+              return n ? deriveLabel(n, 28) : d.id;
+            },
+            getPosition: (d) => d.position,
+            getPixelOffset: [0, -14],
+            getSize: 12,
+            getColor: (d) => {
+              if (selected.has(d.id)) return [240, 80, 40, 240];
+              if (d.id === hovered)   return [251, 191, 36, 240];
+              return [220, 225, 220, 200];
+            },
+            getTextAnchor: 'middle',
+            getAlignmentBaseline: 'bottom',
+            fontFamily: 'system-ui, sans-serif',
+            background: true,
+            getBorderColor: [0, 0, 0, 0],
+            backgroundPadding: [4, 1, 4, 1],
+            getBackgroundColor: (d) => selected.has(d.id)
+              ? [40, 10, 5, 200]
+              : [10, 10, 10, 180],
+            updateTriggers: {
+              data: [selected, hovered, zoom],
+              getColor: [selected, hovered],
+              getBackgroundColor: [selected],
+              getText: [nodesById],
+            },
+          }),
           new ScatterplotLayer<Point>({
             id: 'map-points',
             data: points,

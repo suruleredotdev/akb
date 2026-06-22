@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useRef } from 'react';
 import DeckGL from '@deck.gl/react';
 import { ScatterplotLayer, LineLayer, TextLayer } from '@deck.gl/layers';
 import { OrthographicView } from '@deck.gl/core';
@@ -10,6 +10,7 @@ import { viewStore } from '../state/view-store';
 import { filterStore } from '../state/filter-store';
 import { makeColorEncoder } from '../lib/color-encoder';
 import { projectTimeline } from '../projection/projectors/timeline';
+import { deriveLabel } from '../lib/derive-label';
 import type { FrameProps } from './registry';
 
 interface Point { id: string; x: number; y: number; }
@@ -44,6 +45,9 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
 
   // Brush state: [startX, endX] in data space (ms)
   const [brush, setBrush] = useState<[number, number] | null>(null);
+  const [zoom, setZoom] = useState<number | null>(null);
+  // Store the initial zoom so we can use it as a relative threshold
+  const initialZoomRef = useRef<number | null>(null);
 
   const encode = useMemo(
     () => makeColorEncoder(nodesById, nodeTypes, colorBy),
@@ -114,6 +118,11 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
     <DeckGL
       views={new OrthographicView({ id: 'timeline' })}
       initialViewState={viewState}
+      onViewStateChange={({ viewState: vs }) => {
+        const z = (vs as { zoom?: number }).zoom ?? 0;
+        if (initialZoomRef.current === null) initialZoomRef.current = z;
+        setZoom(z);
+      }}
       controller
       layers={[
         ...rangeBand,
@@ -164,6 +173,42 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
           },
           updateTriggers: { getFillColor: [selected, hovered, colorBy, nodesById], getRadius: [selected, hovered] },
           transitions: { getFillColor: 120 },
+        }),
+        new TextLayer<Point>({
+          id: 'timeline-labels',
+          data: (() => {
+            const zoomed = zoom !== null && initialZoomRef.current !== null && zoom >= initialZoomRef.current + 3;
+            return zoomed
+              ? points
+              : points.filter((p) => selected.has(p.id) || p.id === hovered);
+          })(),
+          getText: (d) => {
+            const n = nodesById.get(d.id);
+            return n ? deriveLabel(n, 22) : d.id;
+          },
+          getPosition: (d) => [d.x, d.y, 0],
+          getPixelOffset: [0, -11],
+          getSize: 10,
+          getColor: (d) => {
+            if (selected.has(d.id)) return [240, 80, 40, 230];
+            if (d.id === hovered)   return [251, 191, 36, 230];
+            return [190, 195, 190, 150];
+          },
+          getTextAnchor: 'middle',
+          getAlignmentBaseline: 'bottom',
+          fontFamily: 'ui-monospace, monospace',
+          background: true,
+          getBorderColor: [0, 0, 0, 0],
+          backgroundPadding: [3, 1, 3, 1],
+          getBackgroundColor: (d) => selected.has(d.id)
+            ? [30, 8, 5, 180]
+            : [14, 22, 12, 160],
+          updateTriggers: {
+            data: [selected, hovered, zoom],
+            getColor: [selected, hovered],
+            getBackgroundColor: [selected],
+            getText: [nodesById],
+          },
         }),
       ]}
       onDragStart={(info) => {

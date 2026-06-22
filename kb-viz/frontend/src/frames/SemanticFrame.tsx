@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useRef, useState } from 'react';
 import DeckGL from '@deck.gl/react';
-import { ScatterplotLayer } from '@deck.gl/layers';
+import { ScatterplotLayer, TextLayer } from '@deck.gl/layers';
 import { OrthographicView, OrbitView } from '@deck.gl/core';
 import { useStore } from '../lib/use-store';
 import { useScopedIds } from '../lib/use-scoped-ids';
@@ -9,6 +9,7 @@ import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
 import { makeColorEncoder } from '../lib/color-encoder';
 import { useBoxSelect, BoxSelectOverlay } from '../lib/use-box-select';
+import { deriveLabel } from '../lib/derive-label';
 import type { SemanticFrameConfig } from '../state/view-store';
 import type { UmapRequest, UmapResponse, UmapError } from '../workers/umap.worker';
 import type { FrameProps } from './registry';
@@ -35,6 +36,9 @@ export function SemanticFrame(_props: FrameProps) {
   const [points, setPoints] = useState<Point[]>([]);
   const [computing, setComputing] = useState(false);
   const workerRef = useRef<Worker | null>(null);
+  const [zoom, setZoom] = useState(0);
+  // Show all labels above this zoom; always show selected/hovered labels
+  const LABEL_ZOOM = 3.5;
 
   const { deckRef, dragRect, onMouseDown } = useBoxSelect<Point>({
     extractId: (obj) => obj?.id,
@@ -167,6 +171,7 @@ export function SemanticFrame(_props: FrameProps) {
         key={mode}
         views={view}
         initialViewState={initialViewState}
+        onViewStateChange={({ viewState: vs }) => setZoom((vs as { zoom?: number }).zoom ?? 0)}
         controller
         layers={[
           new ScatterplotLayer<Point>({
@@ -202,6 +207,41 @@ export function SemanticFrame(_props: FrameProps) {
               getFillColor: [selected, hovered, colorBy, nodesById],
             },
             transitions: { getFillColor: 120 },
+          }),
+          new TextLayer<Point>({
+            id: 'semantic-labels',
+            data: zoom >= LABEL_ZOOM
+              ? points
+              : points.filter((p) => selected.has(p.id) || p.id === hovered),
+            getText: (d) => {
+              const n = nodesById.get(d.id);
+              return n ? deriveLabel(n, 25) : d.id;
+            },
+            getPosition: (d) => d.position,
+            getPixelOffset: [0, -12],
+            getSize: 11,
+            getColor: (d) => {
+              if (selected.has(d.id)) return [240, 80, 40, 230];
+              if (d.id === hovered)   return [251, 191, 36, 230];
+              return [200, 205, 200, 160];
+            },
+            getTextAnchor: 'middle',
+            getAlignmentBaseline: 'bottom',
+            fontFamily: 'system-ui, sans-serif',
+            fontWeight: selected.size > 0 ? 600 : 400,
+            background: true,
+            getBorderColor: [0, 0, 0, 0],
+            backgroundPadding: [3, 1, 3, 1],
+            getBackgroundColor: (d) => {
+              if (selected.has(d.id)) return [30, 10, 8, 180];
+              return [14, 22, 12, 160];
+            },
+            updateTriggers: {
+              data: [selected, hovered, zoom],
+              getColor: [selected, hovered],
+              getBackgroundColor: [selected],
+              getText: [nodesById],
+            },
           }),
         ]}
       />
