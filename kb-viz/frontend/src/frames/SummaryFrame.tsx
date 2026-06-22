@@ -91,24 +91,45 @@ export function SummaryFrame(_props: FrameProps) {
 
       {/* ── Current selection ── */}
       <div style={S.section}>
-        <p style={S.heading}>selection · {selected.size}</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <p style={{ ...S.heading, margin: 0 }}>
+            selection · {selected.size}
+            {selected.size === 0 && <span style={{ ...S.empty, fontStyle: 'normal', marginLeft: 6, fontSize: 9 }}>shift+click to add</span>}
+          </p>
+          {selected.size > 0 && (
+            <button
+              style={{ ...S.navBtn, width: 'auto', fontSize: 10, color: 'var(--text-muted)', padding: '0 2px' }}
+              onClick={() => selectionStore.getState().clear()}
+            >
+              clear all
+            </button>
+          )}
+        </div>
         {selected.size === 0
           ? <span style={S.empty}>Nothing selected</span>
           : selected.size > 8
-          ? <SelectionSummary nodes={selectedNodes} />
+          ? <SelectionSummary nodes={selectedNodes} onClearAll={() => selectionStore.getState().clear()} />
           : selectedNodes.map((n) => (
-              <button
-                key={n.id}
-                style={{ ...S.navBtn, opacity: n.id === focused ? 1 : 0.8 }}
-                onClick={() => selectionStore.getState().selectOnly(n.id)}
-              >
-                <div style={S.row}>
-                  <span style={{ ...S.label, color: n.id === focused ? 'var(--selected)' : 'var(--text)' }}>
-                    {deriveLabel(n, 50)}
-                  </span>
-                  <span style={S.badge}>{n.type}</span>
-                </div>
-              </button>
+              <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <button
+                  style={{ ...S.navBtn, opacity: n.id === focused ? 1 : 0.8, flex: 1 }}
+                  onClick={() => selectionStore.getState().selectOnly(n.id)}
+                >
+                  <div style={S.row}>
+                    <span style={{ ...S.label, color: n.id === focused ? 'var(--selected)' : 'var(--text)' }}>
+                      {deriveLabel(n, 45)}
+                    </span>
+                    <span style={S.badge}>{n.type}</span>
+                  </div>
+                </button>
+                <button
+                  title="Remove from selection"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12, padding: '0 3px', lineHeight: 1, flexShrink: 0 }}
+                  onClick={() => selectionStore.getState().toggle(n.id)}
+                >
+                  ×
+                </button>
+              </div>
             ))}
       </div>
 
@@ -127,16 +148,24 @@ export function SummaryFrame(_props: FrameProps) {
   );
 }
 
-function SelectionSummary({ nodes }: { nodes: Node[] }) {
+function SelectionSummary({ nodes, onClearAll }: { nodes: Node[]; onClearAll: () => void }) {
   const byType = nodes.reduce<Record<string, number>>((acc, n) => {
     acc[n.type] = (acc[n.type] ?? 0) + 1;
     return acc;
   }, {});
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-      {Object.entries(byType).map(([type, count]) => (
-        <span key={type} style={S.chip}>{count} {type}{count !== 1 ? 's' : ''}</span>
-      ))}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+        {Object.entries(byType).map(([type, count]) => (
+          <span key={type} style={S.chip}>{count} {type}{count !== 1 ? 's' : ''}</span>
+        ))}
+      </div>
+      <button
+        style={{ ...S.navBtn, width: 'auto', alignSelf: 'flex-start', fontSize: 10, color: 'var(--text-muted)' }}
+        onClick={onClearAll}
+      >
+        clear all ×
+      </button>
     </div>
   );
 }

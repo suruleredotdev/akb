@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useRef } from 'react';
 import DeckGL from '@deck.gl/react';
 import { ScatterplotLayer, LineLayer, TextLayer } from '@deck.gl/layers';
 import { OrthographicView } from '@deck.gl/core';
@@ -42,8 +42,9 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
   const scopedIds   = useScopedIds(level);
   const dateRange   = useStore(filterStore, (s) => s.dateRange);
 
-  // Brush state: [startX, endX] in data space (ms)
+  // Brush state: [startX, endX] in data space (ms) + whether shift was held at drag start
   const [brush, setBrush] = useState<[number, number] | null>(null);
+  const brushShiftRef = useRef(false);
 
   const encode = useMemo(
     () => makeColorEncoder(nodesById, nodeTypes, colorBy),
@@ -166,9 +167,10 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
           transitions: { getFillColor: 120 },
         }),
       ]}
-      onDragStart={(info) => {
+      onDragStart={(info, event) => {
         if (!info.coordinate) return;
         const x = info.coordinate[0];
+        brushShiftRef.current = !!(event?.srcEvent as MouseEvent | undefined)?.shiftKey;
         setBrush([x, x]);
       }}
       onDrag={(info) => {
@@ -179,9 +181,9 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
         if (!brush) return;
         const [a, b] = [Math.min(brush[0], info.coordinate?.[0] ?? brush[1]), Math.max(brush[0], info.coordinate?.[0] ?? brush[1])];
         if (b - a > 1000 * 60 * 60 * 24 * 30) {
-          // Meaningful range (> 30 days) → apply filter
           const ids = points.filter((p) => p.x >= a && p.x <= b).map((p) => p.id);
-          selectionStore.getState().boxSelect(ids);
+          if (brushShiftRef.current) selectionStore.getState().addToSelection(ids);
+          else selectionStore.getState().boxSelect(ids);
           filterStore.getState().setDateRange({ startMs: a, endMs: b });
         }
         setBrush(null);
