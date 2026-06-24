@@ -210,37 +210,36 @@ export function SemanticFrame(_props: FrameProps) {
           }),
           new TextLayer<Point>({
             id: 'semantic-labels',
-            data: zoom >= LABEL_ZOOM
-              ? points
-              : points.filter((p) => selected.has(p.id) || p.id === hovered),
+            data: points,
             getText: (d) => {
               const n = nodesById.get(d.id);
-              return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 20 : 12) : d.id;
+              return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 14 : 8) : d.id.slice(0, 8);
             },
             getPosition: (d) => d.position,
             getPixelOffset: [0, -12],
             getSize: 11,
             getColor: (d) => {
-              if (selected.has(d.id)) return [240, 80, 40, 230];
-              if (d.id === hovered)   return [251, 191, 36, 230];
-              return [200, 205, 200, 160];
+              const show = selected.has(d.id) || d.id === hovered || zoom >= LABEL_ZOOM;
+              if (selected.has(d.id)) return [240, 80, 40, show ? 220 : 0];
+              if (d.id === hovered)   return [251, 191, 36, show ? 220 : 0];
+              return [200, 205, 200, show ? 140 : 0];
             },
             getTextAnchor: 'middle',
             getAlignmentBaseline: 'bottom',
             fontFamily: 'system-ui, sans-serif',
-            fontWeight: selected.size > 0 ? 600 : 400,
             background: true,
             getBorderColor: [0, 0, 0, 0],
             backgroundPadding: [3, 1, 3, 1],
             getBackgroundColor: (d) => {
-              if (selected.has(d.id)) return [30, 10, 8, 180];
-              return [14, 22, 12, 160];
+              const show = selected.has(d.id) || d.id === hovered || zoom >= LABEL_ZOOM;
+              if (selected.has(d.id)) return [30, 10, 8, show ? 170 : 0];
+              return [14, 22, 12, show ? 140 : 0];
             },
+            transitions: { getColor: 250, getBackgroundColor: 250 },
             updateTriggers: {
-              data: [selected, hovered, zoom],
-              getColor: [selected, hovered],
-              getBackgroundColor: [selected],
-              getText: [nodesById],
+              getColor: [selected, hovered, zoom],
+              getBackgroundColor: [selected, hovered, zoom],
+              getText: [nodesById, selected, hovered],
             },
           }),
         ]}

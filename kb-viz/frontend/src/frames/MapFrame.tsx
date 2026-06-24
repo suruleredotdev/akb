@@ -169,20 +169,19 @@ export function MapFrame(_props: FrameProps) {
           ] : []),
           new TextLayer<Point>({
             id: 'map-labels',
-            data: zoom >= LABEL_ZOOM
-              ? points
-              : points.filter((p) => selected.has(p.id) || p.id === hovered),
+            data: points,
             getText: (d) => {
               const n = nodesById.get(d.id);
-              return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 22 : 14) : d.id;
+              return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 14 : 8) : d.id.slice(0, 8);
             },
             getPosition: (d) => d.position,
             getPixelOffset: [0, -14],
-            getSize: 12,
+            getSize: 11,
             getColor: (d) => {
-              if (selected.has(d.id)) return [240, 80, 40, 240];
-              if (d.id === hovered)   return [251, 191, 36, 240];
-              return [220, 225, 220, 200];
+              const show = selected.has(d.id) || d.id === hovered || zoom >= LABEL_ZOOM;
+              if (selected.has(d.id)) return [240, 80, 40, show ? 230 : 0];
+              if (d.id === hovered)   return [251, 191, 36, show ? 230 : 0];
+              return [220, 225, 220, show ? 180 : 0];
             },
             getTextAnchor: 'middle',
             getAlignmentBaseline: 'bottom',
@@ -190,14 +189,16 @@ export function MapFrame(_props: FrameProps) {
             background: true,
             getBorderColor: [0, 0, 0, 0],
             backgroundPadding: [4, 1, 4, 1],
-            getBackgroundColor: (d) => selected.has(d.id)
-              ? [40, 10, 5, 200]
-              : [10, 10, 10, 180],
+            getBackgroundColor: (d) => {
+              const show = selected.has(d.id) || d.id === hovered || zoom >= LABEL_ZOOM;
+              if (selected.has(d.id)) return [40, 10, 5, show ? 190 : 0];
+              return [10, 10, 10, show ? 170 : 0];
+            },
+            transitions: { getColor: 250, getBackgroundColor: 250 },
             updateTriggers: {
-              data: [selected, hovered, zoom],
-              getColor: [selected, hovered],
-              getBackgroundColor: [selected],
-              getText: [nodesById],
+              getColor: [selected, hovered, zoom],
+              getBackgroundColor: [selected, hovered, zoom],
+              getText: [nodesById, selected, hovered],
             },
           }),
           new ScatterplotLayer<Point>({

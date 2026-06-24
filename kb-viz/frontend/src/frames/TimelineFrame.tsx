@@ -177,23 +177,20 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
         }),
         new TextLayer<Point>({
           id: 'timeline-labels',
-          data: (() => {
-            const zoomed = zoom !== null && initialZoomRef.current !== null && zoom >= initialZoomRef.current + 3;
-            return zoomed
-              ? points
-              : points.filter((p) => selected.has(p.id) || p.id === hovered);
-          })(),
+          data: points,
           getText: (d) => {
             const n = nodesById.get(d.id);
-            return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 20 : 11) : d.id;
+            return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 14 : 8) : d.id.slice(0, 8);
           },
           getPosition: (d) => [d.x, d.y, 0],
           getPixelOffset: [0, -11],
           getSize: 10,
           getColor: (d) => {
-            if (selected.has(d.id)) return [240, 80, 40, 230];
-            if (d.id === hovered)   return [251, 191, 36, 230];
-            return [190, 195, 190, 150];
+            const zoomed = zoom !== null && initialZoomRef.current !== null && zoom >= initialZoomRef.current + 3;
+            const show = selected.has(d.id) || d.id === hovered || zoomed;
+            if (selected.has(d.id)) return [240, 80, 40, show ? 220 : 0];
+            if (d.id === hovered)   return [251, 191, 36, show ? 220 : 0];
+            return [190, 195, 190, show ? 130 : 0];
           },
           getTextAnchor: 'middle',
           getAlignmentBaseline: 'bottom',
@@ -201,14 +198,17 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
           background: true,
           getBorderColor: [0, 0, 0, 0],
           backgroundPadding: [3, 1, 3, 1],
-          getBackgroundColor: (d) => selected.has(d.id)
-            ? [30, 8, 5, 180]
-            : [14, 22, 12, 160],
+          getBackgroundColor: (d) => {
+            const zoomed = zoom !== null && initialZoomRef.current !== null && zoom >= initialZoomRef.current + 3;
+            const show = selected.has(d.id) || d.id === hovered || zoomed;
+            if (selected.has(d.id)) return [30, 8, 5, show ? 170 : 0];
+            return [14, 22, 12, show ? 140 : 0];
+          },
+          transitions: { getColor: 250, getBackgroundColor: 250 },
           updateTriggers: {
-            data: [selected, hovered, zoom],
-            getColor: [selected, hovered],
-            getBackgroundColor: [selected],
-            getText: [nodesById],
+            getColor: [selected, hovered, zoom],
+            getBackgroundColor: [selected, hovered, zoom],
+            getText: [nodesById, selected, hovered],
           },
         }),
       ]}
