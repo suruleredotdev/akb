@@ -18,6 +18,7 @@ const FRAME_LABELS: Record<FrameType, string> = {
   entity:    'Entity',
   summary:   'Summary',
   llm:       'LLM Assistant',
+  filter:    'Filters',
 };
 
 export function AppShell() {
