@@ -180,7 +180,7 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
           data: points,
           getText: (d) => {
             const n = nodesById.get(d.id);
-            return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 14 : 8) : d.id.slice(0, 8);
+            return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 14 : 8, nodesById) : d.id.slice(0, 8);
           },
           getPosition: (d) => [d.x, d.y, 0],
           getPixelOffset: [0, -11],
