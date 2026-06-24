@@ -15,9 +15,17 @@ import {
 
 import { deriveLabel } from '../lib/derive-label';
 import type { FrameProps } from './registry';
+
 export function TextFrame(_props: FrameProps) {
   const nodesById = useStore(dataStore, (s) => s.nodes);
-  const focused = useStore(selectionStore, (s) => s.focused);
+  const focused   = useStore(selectionStore, (s) => s.focused);
+  const selected  = useStore(selectionStore, (s) => s.selected);
+
+  // Pick a comparison node: the first selected id that isn't focused
+  const compareId = selected.size >= 2
+    ? [...selected].find((id) => id !== focused) ?? null
+    : null;
+  const compareNode = compareId ? nodesById.get(compareId) ?? null : null;
 
   if (!focused) {
     return (
@@ -37,8 +45,29 @@ export function TextFrame(_props: FrameProps) {
     );
   }
 
+  if (compareNode) {
+    return (
+      <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+        <div className="text-frame" style={{ flex: 1, borderLeft: 'none', borderRight: 'var(--border-width) solid var(--border)' }}>
+          <NodeContent node={node} nodesById={nodesById} />
+        </div>
+        <div className="text-frame" style={{ flex: 1 }}>
+          <NodeContent node={compareNode} nodesById={nodesById} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="text-frame">
+      <NodeContent node={node} nodesById={nodesById} />
+    </div>
+  );
+}
+
+function NodeContent({ node, nodesById }: { node: Node; nodesById: Map<string, Node> }) {
+  return (
+    <>
       <h3 title={node.id}>{deriveLabel(node)}</h3>
       <div className="meta">
         <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: 10, color: 'var(--text-muted)', userSelect: 'all' }}>{node.id}</span>
@@ -53,7 +82,7 @@ export function TextFrame(_props: FrameProps) {
       )}
       <PropertiesList node={node} />
       <AnnotationsList node={node} />
-    </div>
+    </>
   );
 }
 

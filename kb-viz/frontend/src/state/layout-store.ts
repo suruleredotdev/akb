@@ -18,7 +18,8 @@ export type FrameType =
   | 'search'
   | 'entity'
   | 'summary'
-  | 'llm';
+  | 'llm'
+  | 'filter';
 
 // ---------------------------------------------------------------------------
 // Mosaic-compatible pane tree (binary split tree)
@@ -74,6 +75,16 @@ const PRESETS: Record<string, PaneNode> = {
     first: { direction: 'column', first: 'semantic', second: 'text' },
     second: 'llm',
     splitPercentage: 55,
+  },
+  'filter+map': {
+    direction: 'row',
+    first: { direction: 'column', first: 'filter', second: 'summary', splitPercentage: 45 },
+    second: {
+      direction: 'column',
+      first: { direction: 'row', first: 'map', second: 'timeline', splitPercentage: 55 },
+      second: { direction: 'row', first: 'text', second: 'semantic' },
+    },
+    splitPercentage: 20,
   },
   single: 'semantic',
 };
