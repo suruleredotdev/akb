@@ -174,7 +174,7 @@ export function MapFrame(_props: FrameProps) {
               : points.filter((p) => selected.has(p.id) || p.id === hovered),
             getText: (d) => {
               const n = nodesById.get(d.id);
-              return n ? deriveLabel(n, 28) : d.id;
+              return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 22 : 14) : d.id;
             },
             getPosition: (d) => d.position,
             getPixelOffset: [0, -14],

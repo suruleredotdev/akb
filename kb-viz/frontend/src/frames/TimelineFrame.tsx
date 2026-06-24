@@ -185,7 +185,7 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
           })(),
           getText: (d) => {
             const n = nodesById.get(d.id);
-            return n ? deriveLabel(n, 22) : d.id;
+            return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 20 : 11) : d.id;
           },
           getPosition: (d) => [d.x, d.y, 0],
           getPixelOffset: [0, -11],

@@ -215,7 +215,7 @@ export function SemanticFrame(_props: FrameProps) {
               : points.filter((p) => selected.has(p.id) || p.id === hovered),
             getText: (d) => {
               const n = nodesById.get(d.id);
-              return n ? deriveLabel(n, 25) : d.id;
+              return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 20 : 12) : d.id;
             },
             getPosition: (d) => d.position,
             getPixelOffset: [0, -12],
