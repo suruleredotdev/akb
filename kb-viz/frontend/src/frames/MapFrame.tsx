@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, useRef } from 'react';
 import DeckGL from '@deck.gl/react';
-import { ScatterplotLayer, LineLayer, ArcLayer } from '@deck.gl/layers';
+import { ScatterplotLayer, LineLayer, ArcLayer, TextLayer } from '@deck.gl/layers';
 import { HeatmapLayer } from '@deck.gl/aggregation-layers';
 import { Map as MapGL } from 'react-map-gl/maplibre';
 import { useStore } from '../lib/use-store';
@@ -10,6 +10,9 @@ import { selectionStore } from '../state/selection-store';
 import { viewStore } from '../state/view-store';
 import { makeColorEncoder } from '../lib/color-encoder';
 import { projectMap } from '../projection/projectors/map';
+import { deriveLabel } from '../lib/derive-label';
+import { pickVisibleLabels } from '../lib/pick-visible-labels';
+import { PickMenu, type PickMenuState } from '../components/PickMenu';
 import type { FrameProps } from './registry';
 
 interface Point { id: string; position: [number, number]; }
@@ -47,6 +50,17 @@ export function MapFrame(_props: FrameProps) {
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showArcs, setShowArcs] = useState(true);
   const [showHull, setShowHull] = useState(true);
+  const [zoom, setZoom] = useState(3.5);
+  const LABEL_ZOOM = 6;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const deckRef = useRef<any>(null);
+  const [pickMenu, setPickMenu] = useState<PickMenuState | null>(null);
+  const handlePick = useCallback((id: string, shift: boolean) => {
+    if (shift) selectionStore.getState().toggle(id);
+    else selectionStore.getState().selectOnly(id);
+    setPickMenu(null);
+  }, []);
 
   const encode = useMemo(
     () => makeColorEncoder(nodesById, nodeTypes, colorBy),
@@ -89,6 +103,13 @@ export function MapFrame(_props: FrameProps) {
     return arcs;
   }, [selectedPoints]);
 
+  // Grid-thinned set of IDs whose ambient labels should be visible
+  const visibleLabelIds = useMemo(() => {
+    if (zoom < LABEL_ZOOM) return new Set<string>();
+    const divisions = Math.max(8, Math.floor(8 + (zoom - LABEL_ZOOM) * 8));
+    return pickVisibleLabels(points, (p) => p.position, divisions);
+  }, [points, zoom]);
+
   // Convex hull segments (only when ≥ 3 selected geo points)
   const hullSegments = useMemo(() => {
     if (selectedPoints.length < 3) return [];
@@ -121,7 +142,9 @@ export function MapFrame(_props: FrameProps) {
       </div>
 
       <DeckGL
+        ref={deckRef}
         initialViewState={initialViewState}
+        onViewStateChange={({ viewState: vs }) => { setZoom((vs as { zoom?: number }).zoom ?? 3); setPickMenu(null); }}
         controller
         layers={[
           ...(showHeatmap ? [
@@ -181,8 +204,20 @@ export function MapFrame(_props: FrameProps) {
             lineWidthMinPixels: 1,
             pickable: true,
             onClick: (info, event) => {
+              setPickMenu(null);
               const id = (info.object as Point | undefined)?.id;
               if (!id) return;
+              // Check for overlapping objects under the click
+              const picks = deckRef.current?.pickMultipleObjects?.({
+                x: info.x, y: info.y, layerIds: ['map-points'],
+              }) ?? [];
+              const ids = [...new Set(
+                picks.map((p: { object?: Point }) => p.object?.id).filter(Boolean) as string[],
+              )];
+              if (ids.length > 1) {
+                setPickMenu({ x: info.x, y: info.y, ids });
+                return;
+              }
               const shift = (event?.srcEvent as MouseEvent | undefined)?.shiftKey ?? false;
               if (shift) selectionStore.getState().toggle(id);
               else selectionStore.getState().selectOnly(id);
@@ -197,6 +232,41 @@ export function MapFrame(_props: FrameProps) {
             },
             transitions: { getFillColor: 120 },
           }),
+          new TextLayer<Point>({
+            id: 'map-labels',
+            data: points,
+            getText: (d) => {
+              const n = nodesById.get(d.id);
+              return n ? deriveLabel(n, selected.has(d.id) || d.id === hovered ? 30 : 20) : d.id.slice(0, 15);
+            },
+            getPosition: (d) => d.position,
+            getPixelOffset: [0, -14],
+            getSize: 11,
+            getColor: (d) => {
+              if (selected.has(d.id)) return [240, 80, 40, 230];
+              if (d.id === hovered)   return [251, 191, 36, 230];
+              if (visibleLabelIds.has(d.id)) return [220, 225, 220, 160];
+              return [220, 225, 220, 0];
+            },
+            getTextAnchor: 'middle',
+            getAlignmentBaseline: 'bottom',
+            fontFamily: 'system-ui, sans-serif',
+            background: true,
+            getBorderColor: [0, 0, 0, 0],
+            backgroundPadding: [4, 1, 4, 1],
+            getBackgroundColor: (d) => {
+              if (selected.has(d.id)) return [40, 10, 5, 190];
+              if (d.id === hovered)   return [10, 10, 10, 170];
+              if (visibleLabelIds.has(d.id)) return [10, 10, 10, 130];
+              return [10, 10, 10, 0];
+            },
+            transitions: { getColor: 250, getBackgroundColor: 250 },
+            updateTriggers: {
+              getColor: [selected, hovered, visibleLabelIds],
+              getBackgroundColor: [selected, hovered, visibleLabelIds],
+              getText: [nodesById, selected, hovered],
+            },
+          }),
         ]}
       >
         <MapGL
@@ -204,6 +274,7 @@ export function MapFrame(_props: FrameProps) {
           attributionControl={false}
         />
       </DeckGL>
+      {pickMenu && <PickMenu menu={pickMenu} onPick={handlePick} onClose={() => setPickMenu(null)} />}
     </div>
   );
 }
