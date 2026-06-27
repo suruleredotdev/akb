@@ -10,6 +10,7 @@ import { viewStore } from '../state/view-store';
 import { makeColorEncoder } from '../lib/color-encoder';
 import { useBoxSelect, BoxSelectOverlay } from '../lib/use-box-select';
 import { deriveLabel } from '../lib/derive-label';
+import { pickVisibleLabels } from '../lib/pick-visible-labels';
 import type { SemanticFrameConfig } from '../state/view-store';
 import type { UmapRequest, UmapResponse, UmapError } from '../workers/umap.worker';
 import type { FrameProps } from './registry';
@@ -52,6 +53,13 @@ export function SemanticFrame(_props: FrameProps) {
     () => makeColorEncoder(nodesById, nodeTypes, colorBy),
     [nodesById, nodeTypes, colorBy],
   );
+
+  // Grid-thinned set of IDs whose ambient labels should be visible
+  const visibleLabelIds = useMemo(() => {
+    if (zoom < LABEL_ZOOM) return new Set<string>();
+    const divisions = Math.max(8, Math.floor(8 + (zoom - LABEL_ZOOM) * 8));
+    return pickVisibleLabels(points, (p) => [p.position[0], p.position[1]], divisions);
+  }, [points, zoom]);
 
   const embInput = useMemo(() => {
     const ids: string[] = [];
@@ -219,10 +227,10 @@ export function SemanticFrame(_props: FrameProps) {
             getPixelOffset: [0, -12],
             getSize: 11,
             getColor: (d) => {
-              const show = selected.has(d.id) || d.id === hovered || zoom >= LABEL_ZOOM;
-              if (selected.has(d.id)) return [240, 80, 40, show ? 220 : 0];
-              if (d.id === hovered)   return [251, 191, 36, show ? 220 : 0];
-              return [200, 205, 200, show ? 140 : 0];
+              if (selected.has(d.id)) return [240, 80, 40, 220];
+              if (d.id === hovered)   return [251, 191, 36, 220];
+              if (visibleLabelIds.has(d.id)) return [200, 205, 200, 140];
+              return [200, 205, 200, 0];
             },
             getTextAnchor: 'middle',
             getAlignmentBaseline: 'bottom',
@@ -231,14 +239,15 @@ export function SemanticFrame(_props: FrameProps) {
             getBorderColor: [0, 0, 0, 0],
             backgroundPadding: [3, 1, 3, 1],
             getBackgroundColor: (d) => {
-              const show = selected.has(d.id) || d.id === hovered || zoom >= LABEL_ZOOM;
-              if (selected.has(d.id)) return [30, 10, 8, show ? 170 : 0];
-              return [14, 22, 12, show ? 140 : 0];
+              if (selected.has(d.id)) return [30, 10, 8, 170];
+              if (d.id === hovered)   return [14, 22, 12, 140];
+              if (visibleLabelIds.has(d.id)) return [14, 22, 12, 120];
+              return [14, 22, 12, 0];
             },
             transitions: { getColor: 250, getBackgroundColor: 250 },
             updateTriggers: {
-              getColor: [selected, hovered, zoom],
-              getBackgroundColor: [selected, hovered, zoom],
+              getColor: [selected, hovered, visibleLabelIds],
+              getBackgroundColor: [selected, hovered, visibleLabelIds],
               getText: [nodesById, selected, hovered],
             },
           }),

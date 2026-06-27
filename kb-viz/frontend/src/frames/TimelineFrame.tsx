@@ -11,6 +11,8 @@ import { filterStore } from '../state/filter-store';
 import { makeColorEncoder } from '../lib/color-encoder';
 import { projectTimeline } from '../projection/projectors/timeline';
 import { deriveLabel } from '../lib/derive-label';
+import { pickVisibleLabels } from '../lib/pick-visible-labels';
+import { PickMenu, type PickMenuState } from '../components/PickMenu';
 import type { FrameProps } from './registry';
 
 interface Point { id: string; x: number; y: number; }
@@ -21,15 +23,55 @@ function hashId(id: string): number {
   return 0.15 + (((h >>> 0) % 1000) / 1000) * 0.7;
 }
 
-function yearTicks(minMs: number, maxMs: number): { x: number; label: string }[] {
-  const minYear = new Date(minMs).getUTCFullYear();
-  const maxYear = new Date(maxMs).getUTCFullYear();
-  const span = maxYear - minYear;
-  const step = span <= 10 ? 1 : span <= 50 ? 5 : span <= 200 ? 20 : 50;
-  const ticks = [];
-  for (let y = Math.ceil(minYear / step) * step; y <= maxYear; y += step) {
-    ticks.push({ x: Date.UTC(y, 0, 1), label: String(y) });
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/** Generate tick marks adaptive to the visible time span. */
+function adaptiveTicks(visMinMs: number, visMaxMs: number): { x: number; label: string }[] {
+  const spanMs = visMaxMs - visMinMs;
+  const spanYears = spanMs / (365.25 * 24 * 3600_000);
+  const spanDays = spanMs / (24 * 3600_000);
+  const ticks: { x: number; label: string }[] = [];
+
+  if (spanYears > 2) {
+    // Year-level ticks
+    const step = spanYears > 200 ? 50 : spanYears > 50 ? 20 : spanYears > 10 ? 5 : 1;
+    const minYear = new Date(visMinMs).getUTCFullYear();
+    const maxYear = new Date(visMaxMs).getUTCFullYear();
+    for (let y = Math.ceil(minYear / step) * step; y <= maxYear; y += step) {
+      ticks.push({ x: Date.UTC(y, 0, 1), label: String(y) });
+    }
+  } else if (spanDays > 60) {
+    // Month / quarter ticks
+    const step = spanDays > 180 ? 3 : 1;
+    const start = new Date(visMinMs);
+    let y = start.getUTCFullYear();
+    let m = Math.floor(start.getUTCMonth() / step) * step;
+    for (;;) {
+      const ms = Date.UTC(y, m, 1);
+      if (ms > visMaxMs) break;
+      if (ms >= visMinMs) {
+        ticks.push({ x: ms, label: m === 0 ? String(y) : `${MONTHS[m]} ${y}` });
+      }
+      m += step;
+      if (m >= 12) { m = 0; y++; }
+    }
+  } else {
+    // Day / week ticks
+    const step = spanDays > 14 ? 7 : 1;
+    const DAY = 24 * 3600_000;
+    let t = Math.ceil(visMinMs / (DAY * step)) * DAY * step;
+    while (t <= visMaxMs) {
+      const d = new Date(t);
+      ticks.push({
+        x: t,
+        label: step >= 7
+          ? `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`
+          : `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`,
+      });
+      t += DAY * step;
+    }
   }
+
   return ticks;
 }
 
@@ -47,8 +89,17 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
   const [brush, setBrush] = useState<[number, number] | null>(null);
   const brushShiftRef = useRef(false);
   const [zoom, setZoom] = useState<number | null>(null);
+  const [viewCenter, setViewCenter] = useState<number | null>(null);
   // Store the initial zoom so we can use it as a relative threshold
   const initialZoomRef = useRef<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const deckRef = useRef<any>(null);
+  const [pickMenu, setPickMenu] = useState<PickMenuState | null>(null);
+  const handlePick = useCallback((id: string, shift: boolean) => {
+    if (shift) selectionStore.getState().toggle(id);
+    else selectionStore.getState().selectOnly(id);
+    setPickMenu(null);
+  }, []);
 
   const encode = useMemo(
     () => makeColorEncoder(nodesById, nodeTypes, colorBy),
@@ -69,13 +120,29 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
     return { minX: Math.min(...xs), maxX: Math.max(...xs) };
   }, [points]);
 
-  const ticks = useMemo(() => yearTicks(minX, maxX), [minX, maxX]);
-
   const padding = (maxX - minX) * 0.05 || 1e9;
   const viewState = useMemo(() => ({
     target: [(minX + maxX) / 2, 0.5, 0] as [number, number, number],
     zoom: Math.log2((_w || 800) / ((maxX - minX + padding * 2) || 1)) - 1,
   }), [minX, maxX, padding, _w]);
+
+  // Compute the visible x-range from viewport state for adaptive ticks
+  const ticks = useMemo(() => {
+    const w = _w || 800;
+    const z = zoom ?? viewState.zoom;
+    const cx = viewCenter ?? (minX + maxX) / 2;
+    const halfWidth = (w / 2) / Math.pow(2, z);
+    return adaptiveTicks(cx - halfWidth, cx + halfWidth);
+  }, [zoom, viewCenter, minX, maxX, _w, viewState.zoom]);
+
+  // Grid-thinned set of IDs whose ambient labels should be visible
+  const visibleLabelIds = useMemo(() => {
+    const baseZoom = initialZoomRef.current;
+    if (zoom === null || baseZoom === null || zoom < baseZoom + 3) return new Set<string>();
+    const zoomDelta = zoom - (baseZoom + 3);
+    const divisions = Math.max(8, Math.floor(8 + zoomDelta * 8));
+    return pickVisibleLabels(points, (p) => [p.x, p.y], divisions);
+  }, [points, zoom]);
 
   const getColor = useCallback((d: Point): [number, number, number, number] => {
     if (selected.has(d.id)) return [240, 80, 40, 255];
@@ -117,12 +184,17 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', background: 'var(--surface)' }}>
     <DeckGL
+      ref={deckRef}
       views={new OrthographicView({ id: 'timeline' })}
       initialViewState={viewState}
       onViewStateChange={({ viewState: vs }) => {
         const z = (vs as { zoom?: number }).zoom ?? 0;
         if (initialZoomRef.current === null) initialZoomRef.current = z;
         setZoom(z);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const target = (vs as any).target;
+        if (target) setViewCenter(target[0]);
+        setPickMenu(null);
       }}
       controller
       layers={[
@@ -135,6 +207,16 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
           getSourcePosition: (d: { from: number[]; to: number[] }) => d.from as [number, number, number],
           getTargetPosition: (d: { from: number[]; to: number[] }) => d.to as [number, number, number],
           getColor: [64, 68, 96, 255],
+          getWidth: 1,
+          widthUnits: 'pixels',
+        }),
+        // Tick marks
+        new LineLayer({
+          id: 'tick-lines',
+          data: ticks,
+          getSourcePosition: (d: { x: number }) => [d.x, 0.05, 0],
+          getTargetPosition: (d: { x: number }) => [d.x, 0.07, 0],
+          getColor: [64, 68, 96, 160],
           getWidth: 1,
           widthUnits: 'pixels',
         }),
@@ -163,8 +245,19 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
           lineWidthMinPixels: 1,
           pickable: true,
           onClick: (info, event) => {
+            setPickMenu(null);
             const id = (info.object as Point | undefined)?.id;
             if (!id) return;
+            const picks = deckRef.current?.pickMultipleObjects?.({
+              x: info.x, y: info.y, layerIds: ['timeline-points'],
+            }) ?? [];
+            const ids = [...new Set(
+              picks.map((p: { object?: Point }) => p.object?.id).filter(Boolean) as string[],
+            )];
+            if (ids.length > 1) {
+              setPickMenu({ x: info.x, y: info.y, ids });
+              return;
+            }
             const shift = (event?.srcEvent as MouseEvent | undefined)?.shiftKey ?? false;
             if (shift) selectionStore.getState().toggle(id);
             else selectionStore.getState().selectOnly(id);
@@ -186,11 +279,10 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
           getPixelOffset: [0, -11],
           getSize: 10,
           getColor: (d) => {
-            const zoomed = zoom !== null && initialZoomRef.current !== null && zoom >= initialZoomRef.current + 3;
-            const show = selected.has(d.id) || d.id === hovered || zoomed;
-            if (selected.has(d.id)) return [240, 80, 40, show ? 220 : 0];
-            if (d.id === hovered)   return [251, 191, 36, show ? 220 : 0];
-            return [190, 195, 190, show ? 130 : 0];
+            if (selected.has(d.id)) return [240, 80, 40, 220];
+            if (d.id === hovered)   return [251, 191, 36, 220];
+            if (visibleLabelIds.has(d.id)) return [190, 195, 190, 130];
+            return [190, 195, 190, 0];
           },
           getTextAnchor: 'middle',
           getAlignmentBaseline: 'bottom',
@@ -199,15 +291,15 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
           getBorderColor: [0, 0, 0, 0],
           backgroundPadding: [3, 1, 3, 1],
           getBackgroundColor: (d) => {
-            const zoomed = zoom !== null && initialZoomRef.current !== null && zoom >= initialZoomRef.current + 3;
-            const show = selected.has(d.id) || d.id === hovered || zoomed;
-            if (selected.has(d.id)) return [30, 8, 5, show ? 170 : 0];
-            return [14, 22, 12, show ? 140 : 0];
+            if (selected.has(d.id)) return [30, 8, 5, 170];
+            if (d.id === hovered)   return [14, 22, 12, 140];
+            if (visibleLabelIds.has(d.id)) return [14, 22, 12, 120];
+            return [14, 22, 12, 0];
           },
           transitions: { getColor: 250, getBackgroundColor: 250 },
           updateTriggers: {
-            getColor: [selected, hovered, zoom],
-            getBackgroundColor: [selected, hovered, zoom],
+            getColor: [selected, hovered, visibleLabelIds],
+            getBackgroundColor: [selected, hovered, visibleLabelIds],
             getText: [nodesById, selected, hovered],
           },
         }),
@@ -234,6 +326,7 @@ export function TimelineFrame({ width: _w, height: _h }: FrameProps) {
         setBrush(null);
       }}
     />
+    {pickMenu && <PickMenu menu={pickMenu} onPick={handlePick} onClose={() => setPickMenu(null)} />}
     </div>
   );
 }
